@@ -36,6 +36,38 @@ cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo "Changed directory to: $(pwd)"
 
 # run Laravel deployment commands
-echo "Running Laravel deployment commands..."
+
+#NPM
+RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
+
+if [ "$RUN_NPM" = "true" ]; then
+    NPM_COMMAND="${NPM_COMMAND:-$(get_env_var "NPM_COMMAND" "$ENV_FILE")}"
+    NPM_COMMAND="${NPM_COMMAND:-build}"
+    echo "Running npm install..."
+    npm install
+    echo "Running npm $NPM_COMMAND..."
+    npm run "$NPM_COMMAND"
+else
+    echo "Skipping npm commands as RUN_NPM is not set to true."
+fi
+
+# Composer install
+composer install --no-dev --optimize-autoloader
+
+# Migrations
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
-echo "MIGRATE is set to: $MIGRATE"
+if [ "$MIGRATE" = "true" ]; then
+    echo "Running migrations..."
+    php artisan migrate --force
+else
+    echo "Skipping migrations as MIGRATE is not set to true."
+fi
+
+# Optimization
+OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
+if [ "$OPTIMIZE" = "true" ]; then
+    echo "Optimizing application..."
+    php artisan optimize
+else
+    echo "Skipping optimization as OPTIMIZE is not set to true."
+fi
