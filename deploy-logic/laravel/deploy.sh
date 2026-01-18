@@ -20,7 +20,7 @@ get_env_var() {
     printf '%s' "$val"
 }
 
-# read APP_DIR (allow environment override)
+# read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
 
 # try fallbacks if not set
@@ -37,5 +37,5 @@ echo "Changed directory to: $(pwd)"
 
 # run Laravel deployment commands
 echo "Running Laravel deployment commands..."
-$MIGRATE = get_env_var "MIGRATE" "$ENV_FILE"
+MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
 echo "MIGRATE is set to: $MIGRATE"
