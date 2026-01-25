@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # find project root (git-aware; fallback to script's grandparent)
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
     PROJECT_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
@@ -23,7 +24,6 @@ get_env_var() {
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
 
-# try fallbacks if not set
 if [ -z "$APP_DIR" ]; then
     echo "APP_DIR not set in environment or .env; aborting"
     exit 1
@@ -35,9 +35,26 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo "Changed directory to: $(pwd)"
 
-# run Laravel deployment commands
+php artisan down
 
-#NPM
+# Run git pull if enabled
+
+GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
+GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
+
+if [ "$GIT_PULL" = "true" ]; then
+    echo "Pulling latest code from git..."
+    if [ -n "$GIT_BRANCH" ]; then
+        git checkout "$GIT_BRANCH"
+    fi
+    TARGET_BRANCH="${GIT_BRANCH:-main}"; git fetch --all --prune && git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH" && git clean -fd
+else
+    echo "Skipping git pull as GIT_PULL is not set to true."
+fi
+
+# Run Laravel deployment commands
+
+# NPM install and build
 RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
 
 if [ "$RUN_NPM" = "true" ]; then
@@ -71,3 +88,5 @@ if [ "$OPTIMIZE" = "true" ]; then
 else
     echo "Skipping optimization as OPTIMIZE is not set to true."
 fi
+
+php artisan up
