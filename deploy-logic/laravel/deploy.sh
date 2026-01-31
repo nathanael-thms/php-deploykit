@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # helper: get value for a key from .env, strip surrounding quotes
 get_env_var() {
     local key="$1" file="$2" val

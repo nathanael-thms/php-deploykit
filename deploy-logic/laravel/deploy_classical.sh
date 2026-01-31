@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # find project root (git-aware; fallback to script's grandparent)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
