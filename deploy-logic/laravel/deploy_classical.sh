@@ -70,7 +70,8 @@ else
     echo "Skipping npm commands as RUN_NPM is not set to true."
 fi
 
-# Composer install
+# Composer install & update
+composer update --no-dev --optimize-autoloader
 composer install --no-dev --optimize-autoloader
 
 # Migrations
