@@ -93,3 +93,6 @@ else
 fi
 
 php artisan up
+
+echo "Deployment completed successfully."
+exit 0
