@@ -80,7 +80,7 @@ else
         ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
 
         echo "Migration to symblink deployment completed successfully."
-        echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current and clear all caches, rebuild them, and test the app, then you can put it back up to the public."
+        echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similair errors), then test the app, and you can put it back up to the public."
         exit 0
     else
         echo "Migration to symblink deployment cancelled by user."
