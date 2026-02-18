@@ -38,21 +38,6 @@ cd "$APP_DIR"/current || { echo "Failed to cd to APP_DIR: $APP_DIR"/current; exi
 echo "Changed directory to: $(pwd)"
 exit 0
 
-# Run git pull if enabled
-
-GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
-GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
-
-if [ "$GIT_PULL" = "true" ]; then
-    echo "Pulling latest code from git..."
-    if [ -n "$GIT_BRANCH" ]; then
-        git checkout "$GIT_BRANCH"
-    fi
-    TARGET_BRANCH="${GIT_BRANCH:-main}"; git fetch --all --prune && git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH" && git clean -fd
-else
-    echo "Skipping git pull as GIT_PULL is not set to true."
-fi
-
 # Run Laravel deployment commands
 
 # NPM install and build
@@ -90,4 +75,5 @@ else
     echo "Skipping optimization as OPTIMIZE is not set to true."
 fi
 
-php artisan up
+echo "Deployment script completed successfully. Please test your application before putting it back up to the public."
+exit 0
