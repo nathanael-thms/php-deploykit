@@ -33,34 +33,35 @@ fi
 
 echo "Using APP_DIR: $APP_DIR"
 
-# navigate to application directory
-cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
-echo "Changed directory to: $(pwd)"
-
 # Create a new release directory
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 NEW_RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
 mkdir "$NEW_RELEASE_DIR"
 
-# Change to the new release directory
-cd "$NEW_RELEASE_DIR" || { echo "Failed to cd to APP_DIR: $NEW_RELEASE_DIR"; exit 1; }
-echo "Changed directory to: $(pwd)"
-
 # Get code from git
 
-
-GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
+# Get the git repository path from .env
+SYMBLINK_DEPLOYMENT_GIT_PATH="${SYMBLINK_DEPLOYMENT_GIT_PATH:-$(get_env_var "SYMBLINK_DEPLOYMENT_GIT_PATH" "$ENV_FILE")}"
 GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
 
-if [ "$GIT_PULL" = "true" ]; then
-    echo "Pulling latest code from git..."
-    if [ -n "$GIT_BRANCH" ]; then
-        git checkout "$GIT_BRANCH"
-    fi
-    TARGET_BRANCH="${GIT_BRANCH:-main}"; git fetch --all --prune && git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH" && git clean -fd
-else
-    echo "Skipping git pull as GIT_PULL is not set to true."
+if [ -z "$SYMBLINK_DEPLOYMENT_GIT_PATH" ]; then
+    echo "SYMBLINK_DEPLOYMENT_GIT_PATH not set in environment or .env; aborting"
+    exit 1
 fi
+
+if [ -z "$GIT_BRANCH" ]; then
+    echo "GIT_BRANCH not set in environment or .env; aborting"
+    exit 1
+fi
+
+echo "Cloning repository from $SYMBLINK_DEPLOYMENT_GIT_PATH (branch: $GIT_BRANCH)..."
+
+git clone --branch "$GIT_BRANCH" --depth 1 "$SYMBLINK_DEPLOYMENT_GIT_PATH" "$NEW_RELEASE_DIR"
+
+# Navigate to the new release directory
+
+cd "$NEW_RELEASE_DIR" || { echo "Failed to cd to NEW_RELEASE_DIR: $NEW_RELEASE_DIR"; exit 1; }
+echo "Changed directory to new release: $(pwd)"
 
 # Run Laravel deployment commands
 
@@ -78,7 +79,8 @@ else
     echo "Skipping npm commands as RUN_NPM is not set to true."
 fi
 
-# Composer install
+# Composer install & update
+composer update --no-dev --optimize-autoloader
 composer install --no-dev --optimize-autoloader
 
 # Migrations
@@ -99,4 +101,9 @@ else
     echo "Skipping optimization as OPTIMIZE is not set to true."
 fi
 
-php artisan up
+echo "Code prepared in new release directory: $NEW_RELEASE_DIR"
+echo "Now updating 'current' symlink to point to the new release..."
+
+ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
+
+exit 0
