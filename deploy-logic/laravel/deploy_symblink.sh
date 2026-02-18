@@ -34,11 +34,20 @@ fi
 echo "Using APP_DIR: $APP_DIR"
 
 # navigate to application directory
-cd "$APP_DIR"/current || { echo "Failed to cd to APP_DIR: $APP_DIR"/current; exit 1; }
+cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo "Changed directory to: $(pwd)"
-exit 0
 
-# Run git pull if enabled
+# Create a new release directory
+TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+NEW_RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
+mkdir "$NEW_RELEASE_DIR"
+
+# Change to the new release directory
+cd "$NEW_RELEASE_DIR" || { echo "Failed to cd to APP_DIR: $NEW_RELEASE_DIR"; exit 1; }
+echo "Changed directory to: $(pwd)"
+
+# Get code from git
+
 
 GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
 GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
