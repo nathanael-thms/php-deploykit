@@ -125,4 +125,6 @@ echo "Now updating 'current' symlink to point to the new release..."
 
 ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
 
+echo "Deployment completed successfully."
+
 exit 0
