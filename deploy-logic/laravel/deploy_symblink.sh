@@ -58,6 +58,25 @@ echo "Cloning repository from $SYMBLINK_DEPLOYMENT_GIT_PATH (branch: $GIT_BRANCH
 
 git clone --branch "$GIT_BRANCH" --depth 1 "$SYMBLINK_DEPLOYMENT_GIT_PATH" "$NEW_RELEASE_DIR"
 
+# Symblink files and directories in shared to the new release
+SHARED_DIR="$APP_DIR/shared"
+if [ -d "$SHARED_DIR" ]; then
+    echo "Symblinking shared files and directories from $SHARED_DIR to $NEW_RELEASE_DIR..."
+    shopt -s dotglob
+    for item in "$SHARED_DIR"/*; do
+        item_name=$(basename "$item")
+        if [ -e $NEW_RELEASE_DIR/$(basename "$item") ]; then
+            echo "Warning: $NEW_RELEASE_DIR/$(basename "$item") already exists and will be overwritten by the symblink."
+            rm -rf "$NEW_RELEASE_DIR/$(basename "$item")"
+        fi
+        echo "Symblinking $item to $NEW_RELEASE_DIR/$item_name"
+        ln -sfn "$item" "$NEW_RELEASE_DIR/$item_name"
+    done
+    shopt -u dotglob
+else
+    echo "No shared directory found at $SHARED_DIR; skipping symblinking of shared files."
+fi
+
 # Navigate to the new release directory
 
 cd "$NEW_RELEASE_DIR" || { echo "Failed to cd to NEW_RELEASE_DIR: $NEW_RELEASE_DIR"; exit 1; }
