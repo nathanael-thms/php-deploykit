@@ -79,6 +79,36 @@ else
         # Create or update the 'current' symlink
         ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
 
+        # Create the 'shared' directory if it doesn't exist
+        mkdir -p "$APP_DIR/shared"
+        echo "Would you like to make your .env file persistent across deployments by moving it to the shared directory and symblinking it. [y/N]"
+        read -r persist_env_input
+        if [ "$persist_env_input" = "y" ] || [ "$persist_env_input" = "Y" ]; then
+            if [ -f "$APP_DIR/current/.env" ]; then
+                mv "$APP_DIR/current/.env" "$APP_DIR/shared/.env"
+                ln -sfn "$APP_DIR/shared/.env" "$NEW_RELEASE_DIR/.env"
+                echo ".env file moved to shared directory and symblinked successfully."
+            else
+                echo "No .env file found in the current release; skipping .env persistence setup."
+            fi
+        else
+            echo "Skipping .env persistence setup. Remember to move your .env file to the shared directory and symblink it to ensure it persists across deployments."
+        fi
+
+        echo "Would you like to make your storage directory persistent across deployments by moving it to the shared directory and symblinking it. [y/N]"
+        read -r persist_storage_input
+        if [ "$persist_storage_input" = "y" ] || [ "$persist_storage_input" = "Y" ]; then
+            if [ -d "$APP_DIR/current/storage" ]; then
+                mv "$APP_DIR/current/storage" "$APP_DIR/shared/storage"
+                ln -sfn "$APP_DIR/shared/storage" "$NEW_RELEASE_DIR/storage"
+                echo "Storage directory moved to shared directory and symblinked successfully."
+            else
+                echo "No storage directory found in the current release; skipping storage directory persistence setup."
+            fi
+        else
+            echo "Skipping storage directory persistence setup. Remember to move your .env file to the shared directory and symblink it to ensure it persists across deployments."
+        fi
+
         echo "Migration to symblink deployment completed successfully."
         echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similair errors), then test the app, and you can put it back up to the public."
         exit 0
