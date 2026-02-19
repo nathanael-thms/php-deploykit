@@ -37,7 +37,11 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo "Changed directory to: $(pwd)"
 
-php artisan down
+DOWN_APP="${DOWN_APP:-$(get_env_var "DOWN_APP" "$ENV_FILE")}"
+if [ "$DOWN_APP" = "true" ]; then
+    echo "Putting application into maintenance mode..."
+    php artisan down
+fi
 
 # Run git pull if enabled
 
@@ -92,7 +96,10 @@ else
     echo "Skipping optimization as OPTIMIZE is not set to true."
 fi
 
-php artisan up
+if [ "$DOWN_APP" = "true" ]; then
+    echo "Bringing application back up..."
+    php artisan up
+fi
 
 echo "Deployment completed successfully."
 exit 0
