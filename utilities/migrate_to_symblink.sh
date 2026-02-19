@@ -111,6 +111,7 @@ else
 
         echo "Migration to symblink deployment completed successfully."
         echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similair errors), then test the app, and you can put it back up to the public."
+        echo "If there are any othert files, move them to shared and symblink them, they will be auto symblinked in future deployments"
         exit 0
     else
         echo "Migration to symblink deployment cancelled by user."
