@@ -1,6 +1,6 @@
 # php-deploykit
 
-php-deploykit is a project, currently in development that allows deployment of php apps in two ways: classical and symblink.
+php-deploykit is a project, currently in development that allows deployment of php apps in two ways: classical and symblink, on linux servers
 
 Classical is a normal deployment, it puts the app down(if DOWN_APP="true") in .env, runs specified commands, and if the app was put down, it puts it back up
 
@@ -8,6 +8,54 @@ Symblink deployment(recommended) is a more modern, zero-downtime and reversible 
 
 > [!WARNING]
 > If a file/directory in the shared folder already exists in the new releases folder, it will be overwritten by the symblink, this is by design, for example, laravel does include the storage directory in git, just all it's contents are gitignored, then the empty storage folder will be overwritten by the symblink, making it persistent across deployments
+
+## Table of contents
+
+- [Installation](#installation)
+- [.env variables](#env-variables)
+
+## Installation
+
+1. Install the required packages listed in [required packages](#required-packages)
+2. Get the code, this can be done via git clone on https(recommended), via github CLI, or you can download a .zip. the repo url is https://github.com/nathanael-thms/php-deploykit.git, so if you use git clone, you would run:
+```bash
+git clone https://github.com/nathanael-thms/php-deploykit.git
+```
+3. If you would like to do a global install(be able to call it from any directory), execute the below in the directory you cloned it/installed it, assuming the folder is called php-deploykit. Don't run inside the installed directory itself, but it's parent, where php-deploykit is a child of it.
+```bash
+# If you have more than one app, you may want to move it to something else, eg.
+# sudo cp -r php-deploykit /opt/php-deploykit-app
+# sudo ln -s /opt/php-deploykit-app/run.sh /usr/local/bin/php-deploykit-app
+
+# move code
+sudo cp -r php-deploykit /opt/php-deploykit
+
+# create symlink of run.sh into PATH
+sudo ln -s /opt/php-deploykit/run.sh /usr/local/bin/php-deploykit
+```
+In future steps, where it is said run php-deploykit, run wherever the run.sh script sits. If you used the above to symblink it into PATH, you can simply run php-deploykit, or if you changed the name, run that. eg. php-deploykit-app. If you did not symblink it, run {php-deploykit directory/run.sh}
+
+4. Make sure all the scripts are executable, they should already be, but if you want to verify, run the following:
+```bash
+# change the directory to the actual directory where the code sits
+sudo find /opt/php-deploykit -type f -name '*.sh' -exec chmod +x {} +
+```
+5. Fill in the .env variables described in [.env syntax](#env-variables)
+6. Run the initial deployment, run php-deploykit(or the run.sh from wherever the code is), and select option 3, it should succeed
+
+## Required packages
+
+php-deploykit aims to use as little packages as possible that are not part of coreutils(the packages preinstalled in virtually all linux distributions, such as cp, mv and ls), however, some still need to be installed
+
+- PHP, you almost certainly have this, since you are hosting a php application
+- Composer
+- Nodejs/NPM(if RUN_NPM="true" in .env)
+- rsync(required for automatic migration to symblink deployment) (Installed on most linux distributions)
+- git(currently the only way to use symblink deployment, though in classical you can turn off git pull in .env, but then you have no there way to retrieve the code)
+- SSH(if you are using it as the git clone method) (Installed on most linux distributions)
+
+All the scripts in this app use /bin/bash, although this is present in virtually all linux distributions, you want to ensure it is present
+
 
 ## .env variables
 
