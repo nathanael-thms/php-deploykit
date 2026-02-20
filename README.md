@@ -1,18 +1,13 @@
 # php-deploykit
 
-php-deploykit is a project, currently in development that allows deployment of php apps in two ways: classical and symblink, on linux servers
-
-Classical is a normal deployment, it puts the app down(if DOWN_APP="true") in .env, runs specified commands, and if the app was put down, it puts it back up
-
-Symblink deployment(recommended) is a more modern, zero-downtime and reversible deployment, every time run, it clones the git repo(truncated to 1 commit) into {app directory}/releases/{timestamp}, runs deployment there, then, after all is completed, creates/overwrites the existing symblink to the {app directory}/current/ directory, this is where you point your web server. Symblink deployment also allows for a {app directory}/shared/ directory, and in every deployment, all files/directories in shared are symblinked to the new release directory(which becomes symblinked to the current directory after completion of deployment), this is useful for things like the 'storage folder' and .env files
-
-> [!WARNING]
-> If a file/directory in the shared folder already exists in the new releases folder, it will be overwritten by the symblink, this is by design, for example, laravel does include the storage directory in git, just all it's contents are gitignored, then the empty storage folder will be overwritten by the symblink, making it persistent across deployments
+php-deploykit is a project, currently in development that allows deployment of php apps in two ways: [classical](#classical-deployment) and [symblink](#symblink-deployment) (recommended), on linux servers
 
 ## Table of contents
 
 - [Installation](#installation)
 - [.env variables](#env-variables)
+- [Classical deployment](#classical-deployment)
+- [Symblink deployment](#symblink-deployment)
 
 ## Installation
 
@@ -91,3 +86,21 @@ Think of the .env more like a config file, it does not hold any confidential dat
 
 **SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment
 tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
+
+## Classical deployment
+
+Classical is a normal deployment, it puts the app down(if DOWN_APP="true") in .env, runs the relevant commands, and if the app was put down, it puts it back up
+
+## Symblink deployment
+
+Symblink deployment(recommended) is a more modern, zero-downtime and reversible deployment, every time run, it clones the git repo(truncated to 1 commit) into {app directory}/releases/{timestamp}, runs deployment there, then, after all is completed, creates/overwrites the existing symblink to the {app directory}/current/ directory, this is where you point your web server. Symblink deployment also allows for a {app directory}/shared/ directory, and in every deployment, all files/directories in shared are symblinked to the new release directory(which becomes symblinked to the current directory after completion of deployment), this is useful for things like the 'storage folder' and .env files
+
+> [!WARNING]
+> If a file/directory in the shared folder already exists in the new releases folder, it will be overwritten by the symblink, this is by design, for example, laravel does include the storage directory in git, just all it's contents are gitignored, then the empty storage folder will be overwritten by the symblink, making it persistent across deployments
+
+### Migration to symblink deployment
+
+This is always a headache, so this web app includes a script to do this automatically, it does everything except clear caches/recache and change your web servers config, to run the script, run php-deploykit, choose option 2, and follow the prompts, afterwards, clear/recache as instructed, and change your web server to point to the new 'current' directory
+
+> [!CAUTION]
+> Read the prompts of the script carefully, failure to do this could pose a security risk
