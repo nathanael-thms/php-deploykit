@@ -3,7 +3,7 @@
 echo "Please select an option:"
 echo "1) Deploy"
 echo "2) Migrate to symblink deployment"
-echo "3) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when syblink deployment is enabled."
+echo "3) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when symblink deployment is enabled."
 
 read -r choice
 
