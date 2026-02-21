@@ -2,6 +2,20 @@
 
 set -euo pipefail
 
+first=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --first)
+      first=true
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
 # helper: get value for a key from .env, strip surrounding quotes
 get_env_var() {
     local key="$1" file="$2" val
@@ -23,12 +37,24 @@ fi
 
 ENV_FILE="$PROJECT_ROOT/.env"
 
+FRAMEWORK="${FRAMEWORK:-$(get_env_var "FRAMEWORK" "$ENV_FILE")}"
 SYMBLINK_DEPLOYMENT="${SYMBLINK_DEPLOYMENT:-$(get_env_var "SYMBLINK_DEPLOYMENT" "$ENV_FILE")}"
 
-if [ "$SYMBLINK_DEPLOYMENT" = "true" ]; then
-    echo "Starting symblink deployment"
-    bash "${SCRIPT_DIR}/deploy_symblink.sh"
-else
-    echo "Starting first classical deployment"
-    bash "${SCRIPT_DIR}/deploy_classical_first.sh"
+if [ "$FRAMEWORK" = "laravel" ]; then
+    if [ "$SYMBLINK_DEPLOYMENT" = "true" ]; then
+        echo "Starting symblink deployment"
+        bash deploy-logic/laravel/deploy_symblink.sh
+    else
+        if [ "$first" = true ]; then
+            echo "Starting first classical deployment"
+            bash deploy-logic/laravel/deploy_classical.sh --first
+        else
+            echo "Starting classical deployment"
+            bash deploy-logic/laravel/deploy_classical.sh
+        fi
+    fi
+
+    else
+    echo "Unsupported framework: $FRAMEWORK"
+    exit 1
 fi

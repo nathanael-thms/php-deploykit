@@ -2,6 +2,20 @@
 
 set -euo pipefail
 
+first=false
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --first)
+      first=true
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
 # find project root (git-aware; fallback to script's grandparent)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -37,8 +51,9 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo "Changed directory to: $(pwd)"
 
+# Down app if enabled and first is not true
 DOWN_APP="${DOWN_APP:-$(get_env_var "DOWN_APP" "$ENV_FILE")}"
-if [ "$DOWN_APP" = "true" ]; then
+if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
     echo "Putting application into maintenance mode..."
     php artisan down
 fi
@@ -95,7 +110,8 @@ else
     echo "Skipping optimization as OPTIMIZE is not set to true."
 fi
 
-if [ "$DOWN_APP" = "true" ]; then
+# Bring app back up if it was down
+if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
     echo "Bringing application back up..."
     php artisan up
 fi

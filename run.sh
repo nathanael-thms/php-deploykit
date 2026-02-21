@@ -10,7 +10,7 @@ read -r choice
 case $choice in
     1)
         echo "Starting deployment..."
-        bash deploy-logic/laravel/deploy.sh
+        bash deploy-logic/deploy.sh
         ;;
     2)
         echo "Starting migration to symblink deployment..."
@@ -18,7 +18,7 @@ case $choice in
         ;;
     3)
         echo "Starting first deployment..."
-        bash deploy-logic/laravel/deploy_first.sh
+        bash deploy-logic/deploy.sh --first
         ;;
     *)
         echo "Invalid option selected. Exiting."
