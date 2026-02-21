@@ -16,7 +16,11 @@ php-deploykit is a project, currently in development that allows deployment of p
 ```bash
 git clone https://github.com/nathanael-thms/php-deploykit.git
 ```
-3. If you would like to do a global install(be able to call it from any directory), execute the below in the directory you cloned it/installed it, assuming the folder is called php-deploykit. Don't run inside the installed directory itself, but it's parent, where php-deploykit is a child of it.
+3. Make sure run.sh is executable, this is the only file that must be, as scripts called from it are run with the bash command, you can do this by running the following from in the directory you cloned it
+```bash
+chmod +x php-deploykit/run.sh
+```
+4. If you would like to do a global install(be able to call it from any directory), execute the below in the directory you cloned it/installed it, assuming the folder is called php-deploykit. Don't run inside the installed directory itself, but it's parent, where php-deploykit is a child of it.
 ```bash
 # If you have more than one app, you may want to move it to something else, eg.
 # sudo cp -r php-deploykit /opt/php-deploykit-app
@@ -28,13 +32,8 @@ sudo cp -r php-deploykit /opt/php-deploykit
 # create symlink of run.sh into PATH
 sudo ln -s /opt/php-deploykit/run.sh /usr/local/bin/php-deploykit
 ```
-In future steps, where it is said run php-deploykit, run wherever the run.sh script sits. If you used the above to symblink it into PATH, you can simply run php-deploykit, or if you changed the name, run that. eg. php-deploykit-app. If you did not symblink it, run {php-deploykit directory/run.sh}
+In future steps, where it is said run php-deploykit, run the run.sh script , wherever it sits. If you used the above to symblink it into PATH, you can simply run php-deploykit, or if you changed the name, run that. eg. php-deploykit-app. If you did not symblink it, run {php-deploykit directory/run.sh}
 
-4. Make sure all the scripts are executable, they should already be, but if you want to verify, run the following:
-```bash
-# change the directory to the actual directory where the code sits
-sudo find /opt/php-deploykit -type f -name '*.sh' -exec chmod +x {} +
-```
 5. Create a .env file derived from .env.example, simply run the command below from inside the deploykit directory, then fill in/change the .env variables described in [.env syntax](#env-variables)
 ```bash
 cp .env.example .env
