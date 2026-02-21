@@ -54,8 +54,7 @@ else
 fi
 
 # Composer install & update
-composer update --no-dev --optimize-autoloader
-composer install --no-dev --optimize-autoloader
+composer install --no-dev --optimize-autoloader --no-interaction 
 
 # Migrations
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
