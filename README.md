@@ -35,8 +35,11 @@ In future steps, where it is said run php-deploykit, run wherever the run.sh scr
 # change the directory to the actual directory where the code sits
 sudo find /opt/php-deploykit -type f -name '*.sh' -exec chmod +x {} +
 ```
-5. Fill in the .env variables described in [.env syntax](#env-variables)
-6. Run the initial deployment, run php-deploykit(or the run.sh from wherever the code is), and select option 3, it should succeed
+5. Create a .env file derived from .env.example, simply run the command below from inside the deploykit directory, then fill in/change the .env variables described in [.env syntax](#env-variables)
+```bash
+cp .env.example .env
+```
+6. Run the initial deployment, run php-deploykit and select option 3, it should succeed
 
 ## Required packages
 
@@ -104,3 +107,4 @@ This is always a headache, so this web app includes a script to do this automati
 
 > [!CAUTION]
 > Read the prompts of the script carefully, failure to do this could pose a security risk
+
