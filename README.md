@@ -93,7 +93,7 @@ Think of the .env more like a config file, it does not hold any confidential dat
 **SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment
 tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
 
-The values must be surrounded with " quotes to ensure the scripts parse them correctly
+The values must be surrounded with "" quotes to ensure the scripts parse them correctly
 
 Variables that are irrelevant but still inputted will simply be ignored
 
