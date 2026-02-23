@@ -56,6 +56,11 @@ DOWN_APP="${DOWN_APP:-$(get_env_var "DOWN_APP" "$ENV_FILE")}"
 if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
     echo "Putting application into maintenance mode..."
     php artisan down
+    # If enabled, bring app back up on failure to avoid leaving it down
+    BRING_APP_UP_ON_FAILURE="${BRING_APP_UP_ON_FAILURE:-$(get_env_var "BRING_APP_UP_ON_FAILURE" "$ENV_FILE")}"
+    if [ "$BRING_APP_UP_ON_FAILURE" = "true" ]; then
+        trap 'echo "An error occurred. Bringing application back up..."; php artisan up; exit 1' ERR
+    fi
 fi
 
 # Run git pull if enabled

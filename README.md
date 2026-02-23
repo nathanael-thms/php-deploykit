@@ -84,10 +84,18 @@ Think of the .env more like a config file, it does not hold any confidential dat
 
 **DOWN_APP**: This is a true/false only variable, it is relevant only when using classical. It tells the deployment script weather to run the necessary command to put the app down before the main deployment process starts, and back up when it finishes successfully. eg. **php artisan down** && **php artisan up**. This is irrelevant for symblink because it is zero-downtime anyway
 >[!IMPORTANT]
-> If any part of the script fails, it will stay down, you must manually put it back up
+> If any part of the script fails, it will stay down, you must manually put it back up unless **BRING_APP_UP_ON_FAILURE="true"**
+
+**BRING_APP_UP_ON_FAILURE**: This is a true/false only variable, it is relevant only when using classical and **DOWN_APP="true"** It tells the deployment script weather to run the necessary command to put the app back up if the main deployment process fails at any point, and and it was put down. eg. **php artisan up**. This is irrelevant for symblink because the app will never have been put down
+>[!CAUTION]
+> This is strongly discouraged, as if it fails during a certain phase, it could leave a half broken app up to the public. This could pose significant vulnerabilities. This is another reason why symblink is great, an unsuccessfully deployed application will never be made public.
 
 **SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment
 tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
+
+The values must be surrounded with " quotes to ensure the scripts parse them correctly
+
+Variables that are irrelevant but still inputted will simply be ignored
 
 ## Usage
 The php-deploykit command/run.sh file can be run with options, here they are listed.
