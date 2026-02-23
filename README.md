@@ -38,7 +38,7 @@ In future steps, where it is said run php-deploykit, run the run.sh script , whe
 ```bash
 cp .env.example .env
 ```
-6. Run the initial deployment, run php-deploykit and select option 3, it should succeed
+6. Run the initial deployment, run php-deploykit and select option 3(or with the first flag), it should succeed
 
 ## Required packages
 
@@ -94,9 +94,27 @@ The php-deploykit command/run.sh file can be run with options, here they are lis
 
 | Flag | Function |
 |---|---|
-| --deploy | The same as running without flags and selecting option 1, does a classical/symblink deployment, following the settings in .env. Does not require human interaction |
-| --migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [Migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
-| --first | The same as running without flags and selecting option 3, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
+| deploy | The same as running without flags and selecting option 1, does a classical/symblink deployment, following the settings in .env. Does not require human interaction |
+| migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
+| first | The same as running without flags and selecting option 3, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
+
+Only one option at a time may be specified
+
+eg. php-deploykit --deploy
+
+Running it without specifying an option will give you a menu, and you may select 1, 2 or 3, more detailed info can be found below:
+
+### Option 1/deploy
+
+This calls the deploy-logic/deploy.sh script, this script checks .env, sees weather to run symblink or classical, and runs the specific one for your framework, currently, only laravel is supported. So, if in .env, framework is set to laravel and symblink deployment is true, it runs deploy-logic/laravel/deploy_symblink.sh
+
+### Option 2/migrate
+
+This is for migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). It calls utilities/migrate_to_symblink.sh
+
+### Option 3/first
+
+Does the exact same as option 1, just ensures, if using classical deployment, that the app down command. eg. php artisan down is not run.
 
 ## Classical deployment
 
@@ -110,8 +128,6 @@ Symblink deployment(recommended) is a more modern, zero-downtime and reversible 
 > If a file/directory in the shared folder already exists in the new releases folder, it will be overwritten by the symblink, this is by design, for example, laravel does include the storage directory in git, just all it's contents are gitignored, then the empty storage folder will be overwritten by the symblink, making it persistent across deployments
 
 ### Migration to symblink deployment
-
-[Migration to symblink deployment](#migration-to-symblink-deployment)
 
 This is always a headache, so this web app includes a script to do this automatically, it does everything except clear caches/recache and change your web servers config, to run the script, run php-deploykit, choose option 2, and follow the prompts, afterwards, clear/recache as instructed, and change your web server to point to the new 'current' directory
 
