@@ -142,3 +142,4 @@ This is always a headache, so this web app includes a script to do this automati
 > [!CAUTION]
 > Read the prompts of the script carefully, failure to do this could pose a security risk
 
+To symblink files, move them to app dir/shared, and redeploy
