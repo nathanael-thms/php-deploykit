@@ -35,8 +35,8 @@ if [ "$SYMBLINK_DEPLOYMENT" = "true" ]; then
     exit 1
 else
     echo "ENSURE YOU HAVE A BACKUP OF YOUR CODE AND DATABASE BEFORE PROCEEDING WITH THE MIGRATION TO SYMBLINK DEPLOYMENT."
-    echo "Before proceeding, it is very strongly reccomend to run the nessecary command in the app to put it down. eg. php artisan down"
-    echo "Even better if you could ensure no requests are being made. eg. by truning rerouting the web sever page to a static maintenance page."
+    echo "Before proceeding, it is very strongly recommend to run the necessary command in the app to put it down. eg. php artisan down"
+    echo "Even better if you could ensure no requests are being made. eg. by rerouting the web sever page to a static maintenance page."
     echo "Select 1 to proceed with migration to symblink deployment, or anything else to cancel."
 
     read -r user_input
@@ -110,8 +110,8 @@ else
         fi
 
         echo "Migration to symblink deployment completed successfully."
-        echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similair errors), then test the app, and you can put it back up to the public."
-        echo "If there are any othert files, move them to shared and symblink them, they will be auto symblinked in future deployments"
+        echo "Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similar errors), then test the app, and you can put it back up to the public."
+        echo "If there are any other files, move them to shared and symblink them, they will be auto symblinked in future deployments"
         exit 0
     else
         echo "Migration to symblink deployment cancelled by user."
