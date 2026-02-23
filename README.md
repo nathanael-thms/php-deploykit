@@ -70,7 +70,7 @@ Think of the .env more like a config file, it does not hold any confidential dat
 
 **GIT_PULL**: Also a true/false only variable, it is only relevant for classical deployment, and will be ignored in symblink deployments. It will almost always be set to true, as there are currently no other automated methods to retrieve the code
 
-**GIT_BRANCH**: Also a true/false only variable, however it is relevant weather you are using classical or symblink. In classical, it specifies which branch to pull from, in symblink, it specifies which branch to clone
+**GIT_BRANCH**: This variable is relevant weather you are using classical or symblink. In classical, it specifies which branch to pull from, in symblink, it specifies which branch to clone
 
 **FRAMEWORK**: This specifies which php framework the app , currently, only laravel is supported, though support for symfony is planned soon, and other frameworks may receive support later.
 
