@@ -16,6 +16,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
 # helper: get value for a key from .env, strip surrounding quotes
 get_env_var() {
     local key="$1" file="$2" val
@@ -42,19 +46,19 @@ SYMBLINK_DEPLOYMENT="${SYMBLINK_DEPLOYMENT:-$(get_env_var "SYMBLINK_DEPLOYMENT" 
 
 if [ "$FRAMEWORK" = "laravel" ]; then
     if [ "$SYMBLINK_DEPLOYMENT" = "true" ]; then
-        echo "Starting symblink deployment"
+        echo -e "${GREEN}Starting symblink deployment${NC}"
         bash deploy-logic/laravel/deploy_symblink.sh
     else
         if [ "$first" = true ]; then
-            echo "Starting first classical deployment"
+            echo -e "${GREEN}Starting first classical deployment${NC}"
             bash deploy-logic/laravel/deploy_classical.sh --first
         else
-            echo "Starting classical deployment"
+            echo -e "${GREEN}Starting classical deployment${NC}"
             bash deploy-logic/laravel/deploy_classical.sh
         fi
     fi
 
     else
-    echo "Unsupported framework: $FRAMEWORK"
+    echo -e "${RED}Unsupported framework: $FRAMEWORK${NC}"
     exit 1
 fi
