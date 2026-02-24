@@ -30,13 +30,13 @@ get_env_var() {
     printf '%s' "$val"
 }
 
-# find project root (git-aware; fallback to script's grandparent)
+# find project root (git-aware; fallback to script's parent)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
     PROJECT_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 else
-    PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 fi
 
 ENV_FILE="$PROJECT_ROOT/.env"
