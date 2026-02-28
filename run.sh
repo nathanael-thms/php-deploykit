@@ -16,6 +16,10 @@ while [[ $# -gt 0 ]]; do
       migrate=true
       shift
       ;;
+    --revert)
+      revert=true
+      shift
+      ;;
     --first)
       first=true
       shift
@@ -46,6 +50,12 @@ fi
 if [ "$migrate" = true ]; then
     echo "Starting migration to symblink deployment..."
     bash utilities/migrate_to_symblink.sh
+    exit 0
+fi
+
+if [ "$revert" = true ]; then
+    echo "Starting revert to previous deployment..."
+    bash utilities/revert_to_previous_deployment.sh
     exit 0
 fi
 
