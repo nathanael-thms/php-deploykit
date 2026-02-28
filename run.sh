@@ -58,7 +58,8 @@ fi
 echo "Please select an option:"
 echo "1) Deploy"
 echo "2) Migrate to symblink deployment"
-echo "3) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when symblink deployment is enabled."
+echo "3) Revert to previous deployment (only applicable if symblink deployment is enabled, will throw an error if not)"
+echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when symblink deployment is enabled."
 
 read -r choice
 
@@ -72,6 +73,11 @@ case $choice in
         bash utilities/migrate_to_symblink.sh
         ;;
     3)
+        echo "Starting revert to previous deployment..."
+        bash utilities/revert_to_previous_deployment.sh
+        ;;
+
+    4)
         echo "Starting first deployment..."
         bash deploy-logic/deploy.sh --first
         ;;
