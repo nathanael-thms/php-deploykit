@@ -38,7 +38,7 @@ In future steps, where it is said run php-deploykit, run the run.sh script , whe
 ```bash
 cp .env.example .env
 ```
-6. Run the initial deployment, run php-deploykit and select option 3(or with the first flag), it should succeed
+6. Run the initial deployment, run php-deploykit and select option 4(or with the first flag), it should succeed
 
 ## Required packages
 
@@ -104,13 +104,14 @@ The php-deploykit command/run.sh file can be run with options, here they are lis
 |---|---|
 | deploy | The same as running without flags and selecting option 1, does a classical/symblink deployment, following the settings in .env. Does not require human interaction |
 | migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
-| first | The same as running without flags and selecting option 3, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
+| revert | The same as running without flags and selecting option 3, symblink only. Reverts to a previous deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires human interaction |
+| first | The same as running without flags and selecting option 4, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
 
 Only one option at a time may be specified
 
 eg. php-deploykit --deploy
 
-Running it without specifying an option will give you a menu, and you may select 1, 2 or 3, more detailed info can be found below:
+Running it without specifying an option will give you a menu, and you may select 1, 2, 3 or 4, more detailed info can be found below:
 
 ### Option 1/deploy
 
@@ -120,7 +121,11 @@ This calls the deploy-logic/deploy.sh script, this script checks .env, sees weat
 
 This is for migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). It calls utilities/migrate_to_symblink.sh
 
-### Option 3/first
+### Option 3/revert
+
+This helps revert to a previous deployment if using symblink deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). It calls utilities/revert_to_previous_deployment
+
+### Option 4/first
 
 Does the exact same as option 1, just ensures, if using classical deployment, that the app down command. eg. php artisan down is not run.
 
@@ -143,3 +148,7 @@ This is always a headache, so this web app includes a script to do this automati
 > Read the prompts of the script carefully, failure to do this could pose a security risk
 
 To symblink files, move them to app dir/shared, and redeploy
+
+### Reverting to a previous deployment
+
+Another key advantage of symblink deployment is you can revert back to previous deployment, if you realize you pushed a bug. It just re-maps the current symblink to an older release directory. It outputs directory names in an easy to read format, prompts you to select a number from 1-however many releases, although it is named revert, it can be used to go nack to a newer deployment after reverting. To run the script, run php-deploykit, choose option 3, and follow the prompts.
