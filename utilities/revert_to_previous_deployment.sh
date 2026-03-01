@@ -28,7 +28,7 @@ if [ -L "$APP_DIR/current" ] || [ -e "$APP_DIR/current" ]; then
 fi
 
 # List releases directories in a readable format, sorted by modification time (newest first)
-mapfile -t dirs < <(ls -t | head -10)
+mapfile -t dirs < <(ls -t)
 
 if [ ${#dirs[@]} -eq 0 ]; then
     echo "No releases found."
@@ -73,6 +73,6 @@ else
 fi
 
 # Create a symlink to the selected release
-ln -sfn "$selected_dir" "$APP_DIR/current" || { echo -e "${RED}Failed to create symlink${NC}"; exit 1; }
+ln -sfn "releases/$selected_dir" "$APP_DIR/current" || { echo -e "${RED}Failed to create symlink${NC}"; exit 1; }
 
 echo -e "${GREEN}Successfully reverted to release: $selected_dir${NC}"
