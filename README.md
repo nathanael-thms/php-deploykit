@@ -90,8 +90,11 @@ Think of the .env more like a config file, it does not hold any confidential dat
 >[!CAUTION]
 > This is strongly discouraged, as if it fails during a certain phase, it could leave a half broken app up to the public. This could pose significant vulnerabilities. This is another reason why symblink is great, an unsuccessfully deployed application will never be made public.
 
-**SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment
-tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
+**SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
+
+**AUTO_CLEANUP**: This is a true/false only variable, it is relevant only when using symblink deployment tells the script weather to auto clean up old releases, keeping the latest **KEEP_RELEASES** releases
+
+**KEEP_RELEASES**: This variable, only relevant for symblink deployment and when **AUTO_CLEANUP="true"** tells the auto cleanup script to keep the latest **KEEP_RELEASES** releases
 
 The values must be surrounded with "" quotes to ensure the scripts parse them correctly
 
