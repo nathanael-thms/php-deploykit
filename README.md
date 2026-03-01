@@ -123,7 +123,7 @@ This is for migration to symlink deployment as described in [migration to symbli
 
 ### Option 3/revert
 
-This helps revert to a previous deployment if using symblink deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). It calls utilities/revert_to_previous_deployment
+This helps revert to a previous deployment if using symblink deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). It calls utilities/revert_to_previous_deployment.sh
 
 ### Option 4/first
 
