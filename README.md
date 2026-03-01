@@ -112,7 +112,7 @@ Only one option at a time may be specified
 
 eg. php-deploykit --deploy
 
-Running it without specifying an option will give you a menu, and you may select 1, 2, 3 4 or 5, more detailed info can be found below:
+Running it without specifying an option will give you a menu, and you may select 1, 2, 3 4 or 5, more detailed info on each option can be found below:
 
 ### Option 1/deploy
 
