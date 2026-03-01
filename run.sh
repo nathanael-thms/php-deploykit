@@ -7,6 +7,7 @@ migrate=false
 revert=false
 first=false
 cleanup=false
+help=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -30,11 +31,27 @@ while [[ $# -gt 0 ]]; do
       cleanup=true
       shift
       ;;
+    --help)
+      help=true
+      shift
+      ;;
     *)
       shift
       ;;
   esac
 done
+
+if [ "$help" = true ]; then
+  echo "Usage: $0 [OPTIONS]"
+  echo "Options:"
+  echo "  --deploy        Run deployment logic"
+  echo "  --migrate       Migrate to symblink deployment"
+  echo "  --revert        Revert to previous deployment"
+  echo "  --first         Run first deployment (use this for the first deployment)"
+  echo "  --cleanup       Cleanup old releases"
+  echo "  --help          Show this help message"
+  exit 0
+fi
 
 # validate flags
 count=0
