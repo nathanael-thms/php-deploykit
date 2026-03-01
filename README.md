@@ -106,12 +106,13 @@ The php-deploykit command/run.sh file can be run with options, here they are lis
 | migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
 | revert | The same as running without flags and selecting option 3, symblink only. Reverts to a previous deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires human interaction |
 | first | The same as running without flags and selecting option 4, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
+| cleanup | The same as running without flags and selecting option 5, symblink only. cleans up old releases as described in [cleaning up old releases](#cleaning-up-old-releases). Requires human interaction |
 
 Only one option at a time may be specified
 
 eg. php-deploykit --deploy
 
-Running it without specifying an option will give you a menu, and you may select 1, 2, 3 or 4, more detailed info can be found below:
+Running it without specifying an option will give you a menu, and you may select 1, 2, 3 4 or 5, more detailed info can be found below:
 
 ### Option 1/deploy
 
@@ -128,6 +129,10 @@ This helps revert to a previous deployment if using symblink deployment as descr
 ### Option 4/first
 
 Does the exact same as option 1, just ensures, if using classical deployment, that the app down command. eg. php artisan down is not run.
+
+### Option 5/cleanup
+
+This helps clean up old releases if using symblink deployment as described in [cleaning up old releases](#cleaning-up-old-releases). It calls utilities/clean_up_releases.sh
 
 ## Classical deployment
 
@@ -152,3 +157,10 @@ To symblink files, move them to app dir/shared, and redeploy
 ### Reverting to a previous deployment
 
 Another key advantage of symblink deployment is you can revert back to previous deployment, if you realize you pushed a bug. It just re-maps the current symblink to an older release directory. It outputs directory names in an easy to read format, in newest-oldest order, prompts you to select a number from 1-however many releases, although it is named revert, it can be used to go nack to a newer deployment after reverting. To run the script, run php-deploykit, choose option 3, and follow the prompts.
+
+### Cleaning up old releases
+
+Eventually, your server will be filled with releases, as a quick way to clean them up, php-deploykit includes a script, it will run, and will(if number of releases is greater than 1) prompt you for how many you would like to keep, say I put in 10, it will keep the 10 newest releases, and delete the rest. To run the script, run php-deploykit, choose option 5, and follow the prompts.
+
+> [!CAUTION]
+> If you used revert or manually changed the symblink, to an older release, say you put in 10 for how many to keep, and you had reverted to the 11th newest release, the web server will stop working, as the symblink current will point to a non-existent directory
