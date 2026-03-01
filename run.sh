@@ -61,6 +61,7 @@ if [ "$help" = true ]; then
   echo "  --revert        Revert to previous deployment"
   echo "  --first         Run first deployment (use this for the first deployment)"
   echo "  --cleanup       Cleanup old releases"
+  echo "  --cleanup-N     Cleanup old releases, keeping the latest N releases (N must be an integer greater than or equal to 2)"
   echo "  --help          Show this help message"
   exit 0
 fi
