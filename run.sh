@@ -7,6 +7,7 @@ migrate=false
 revert=false
 first=false
 cleanup=false
+cleanup_num=""
 help=false
 
 while [[ $# -gt 0 ]]; do
@@ -29,6 +30,17 @@ while [[ $# -gt 0 ]]; do
       ;;
     --cleanup)
       cleanup=true
+      shift
+      ;;
+    --cleanup-*)
+      num="${1#--cleanup-}"
+      if  [[ "$num" =~ ^[0-9]+$ ]] || [ "$num" -ge 2 ]; then
+          cleanup=true
+          cleanup_num="$num"
+      else
+          echo "Invalid --cleanup value: $num" >&2
+          exit 2
+      fi
       shift
       ;;
     --help)
@@ -91,8 +103,13 @@ if [ "$first" = true ]; then
 fi
 
 if [ "$cleanup" = true ]; then
-    echo "Starting cleanup of old releases..."
-    bash utilities/clean_up_releases.sh
+    if [ -n "$cleanup_num" ]; then
+        echo "Starting cleanup of old releases, keeping the latest $cleanup_num releases..."
+        bash utilities/clean_up_releases.sh $cleanup_num
+    else
+        echo "Starting cleanup of old releases..."
+        bash utilities/clean_up_releases.sh
+    fi
     exit 0
 fi
 
