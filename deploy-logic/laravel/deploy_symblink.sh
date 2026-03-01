@@ -2,31 +2,9 @@
 
 set -euo pipefail
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m'
-
-# find project root (git-aware; fallback to script's grandparent)
-
+# Load shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if git -C "$SCRIPT_DIR" rev-parse --show-toplevel >/dev/null 2>&1; then
-    PROJECT_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
-else
-    PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-fi
-
-ENV_FILE="$PROJECT_ROOT/.env"
-
-# helper: get value for a key from .env, strip surrounding quotes
-get_env_var() {
-    local key="$1" file="$2" val
-    [ -f "$file" ] || return 1
-    val=$(grep -E "^${key}=" "$file" 2>/dev/null | tail -n1 | sed -E "s/^${key}=//")
-    val=${val#\"}; val=${val%\"}
-    val=${val#\'}; val=${val%\'}
-    printf '%s' "$val"
-}
+source "$SCRIPT_DIR/../../utilities/common.sh"
 
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
