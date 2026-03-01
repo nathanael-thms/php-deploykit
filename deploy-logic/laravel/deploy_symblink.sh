@@ -107,6 +107,20 @@ echo -e "${GREEN}Now updating 'current' symlink to point to the new release...${
 
 ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
 
+# Run cleanup if AUTO_CLEANUP is set to true
+AUTO_CLEANUP="${AUTO_CLEANUP:-$(get_env_var "AUTO_CLEANUP" "$ENV_FILE")}"
+KEEP_RELEASES="${KEEP_RELEASES:-$(get_env_var "KEEP_RELEASES" "$ENV_FILE")}"
+if [ "$AUTO_CLEANUP" = "true" ]; then
+    if ! [[ "$KEEP_RELEASES" =~ ^[0-9]+$ ]] || [ "$KEEP_RELEASES" -le 1 ]; then
+        echo -e "${RED}Invalid KEEP_RELEASES value: $KEEP_RELEASES. It must be an integer greater than or equal to 2.${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}Running automatic cleanup of old releases, keeping the latest $KEEP_RELEASES releases...${NC}"
+    bash $SCRIPT_DIR/../../utilities/clean_up_releases.sh $KEEP_RELEASES
+else
+    echo -e "${YELLOW}Skipping automatic cleanup as AUTO_CLEANUP is not set to true.${NC}"
+fi
+
 echo -e "${GREEN}Deployment completed successfully.${NC}"
 
 exit 0
