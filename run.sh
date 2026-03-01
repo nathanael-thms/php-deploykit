@@ -4,6 +4,7 @@ set -euo pipefail
 
 deploy=false
 migrate=false
+revert=false
 first=false
 
 while [[ $# -gt 0 ]]; do
