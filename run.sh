@@ -6,6 +6,7 @@ deploy=false
 migrate=false
 revert=false
 first=false
+cleanup=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -25,6 +26,10 @@ while [[ $# -gt 0 ]]; do
       first=true
       shift
       ;;
+    --cleanup)
+      cleanup=true
+      shift
+      ;;
     *)
       shift
       ;;
@@ -35,10 +40,12 @@ done
 count=0
 [ "$deploy" = true ] && ((count+=1))
 [ "$migrate" = true ] && ((count+=1))
+[ "$revert" = true ] && ((count+=1))
 [ "$first" = true ] && ((count+=1))
+[ "$cleanup" = true ] && ((count+=1))
 
 if [ "$count" -gt 1 ]; then
-  echo "Error: only one of --deploy, --migrate, or --first may be specified." >&2
+  echo "Error: only one of --deploy, --migrate, --revert, or --cleanup may be specified." >&2
   exit 2
 fi
 
@@ -66,11 +73,18 @@ if [ "$first" = true ]; then
     exit 0
 fi
 
+if [ "$cleanup" = true ]; then
+    echo "Starting cleanup of old releases..."
+    bash utilities/clean_up_releases.sh
+    exit 0
+fi
+
 echo "Please select an option:"
 echo "1) Deploy"
 echo "2) Migrate to symblink deployment"
 echo "3) Revert to previous deployment (only applicable if symblink deployment is enabled, will throw an error if not)"
 echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when symblink deployment is enabled."
+echo "5) Cleanup old releases"
 
 read -r choice
 
@@ -91,6 +105,10 @@ case $choice in
     4)
         echo "Starting first deployment..."
         bash deploy-logic/deploy.sh --first
+        ;;
+    5)
+        echo "Starting cleanup of old releases..."
+        bash utilities/clean_up_releases.sh
         ;;
     *)
         echo "Invalid option selected. Exiting."
