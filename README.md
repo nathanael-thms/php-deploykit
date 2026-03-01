@@ -107,6 +107,7 @@ The php-deploykit command/run.sh file can be run with options, here they are lis
 | revert | The same as running without flags and selecting option 3, symblink only. Reverts to a previous deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires human interaction |
 | first | The same as running without flags and selecting option 4, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
 | cleanup | The same as running without flags and selecting option 5, symblink only. cleans up old releases as described in [cleaning up old releases](#cleaning-up-old-releases). Requires human interaction |
+| help | Prints the available flags |
 
 Only one option at a time may be specified
 
@@ -160,7 +161,7 @@ Another key advantage of symblink deployment is you can revert back to previous 
 
 ### Cleaning up old releases
 
-Eventually, your server will be filled with releases, as a quick way to clean them up, php-deploykit includes a script, it will run, and will(if number of releases is greater than 1) prompt you for how many you would like to keep, say I put in 10, it will keep the 10 newest releases, and delete the rest. To run the script, run php-deploykit, choose option 5, and follow the prompts.
+Eventually, your server will be filled with releases, as a quick way to clean them up, php-deploykit includes a script, it will run, and will(if number of releases is greater than 1) prompt you for how many you would like to keep, say I put in 10, it will keep the 10 newest releases, and delete the rest. To run the script, run php-deploykit, choose option 5, and follow the prompts. If you enter a number greater than or equal to the number of present releases, the script will not delete anything and exit 0, to aid in having this in automatons
 
 > [!CAUTION]
 > If you used revert or manually changed the symblink, to an older release, say you put in 10 for how many to keep, and you had reverted to the 11th newest release, the web server will stop working, as the symblink current will point to a non-existent directory
