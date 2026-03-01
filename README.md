@@ -106,7 +106,7 @@ The php-deploykit command/run.sh file can be run with options, here they are lis
 | migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
 | revert | The same as running without flags and selecting option 3, symblink only. Reverts to a previous deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires human interaction |
 | first | The same as running without flags and selecting option 4, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
-| cleanup | The same as running without flags and selecting option 5, symblink only. cleans up old releases as described in [cleaning up old releases](#cleaning-up-old-releases). Requires human interaction |
+| cleanup | The same as running without flags and selecting option 5, symblink only. cleans up old releases as described in [cleaning up old releases](#cleaning-up-old-releases). Can be followed up. eg. --cleanup-10 keeps the latest 10. Requires human interaction if not followed up with a dash and an integer |
 | help | Prints the available flags |
 
 Only one option at a time may be specified
