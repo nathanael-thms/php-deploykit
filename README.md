@@ -151,4 +151,4 @@ To symblink files, move them to app dir/shared, and redeploy
 
 ### Reverting to a previous deployment
 
-Another key advantage of symblink deployment is you can revert back to previous deployment, if you realize you pushed a bug. It just re-maps the current symblink to an older release directory. It outputs directory names in an easy to read format, prompts you to select a number from 1-however many releases, although it is named revert, it can be used to go nack to a newer deployment after reverting. To run the script, run php-deploykit, choose option 3, and follow the prompts.
+Another key advantage of symblink deployment is you can revert back to previous deployment, if you realize you pushed a bug. It just re-maps the current symblink to an older release directory. It outputs directory names in an easy to read format, in newest-oldest order, prompts you to select a number from 1-however many releases, although it is named revert, it can be used to go nack to a newer deployment after reverting. To run the script, run php-deploykit, choose option 3, and follow the prompts.
