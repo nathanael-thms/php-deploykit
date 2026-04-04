@@ -37,6 +37,13 @@ get_env_var() {
 
     if [ "${LOG_ENABLED}" = true ]; then
         activate_logging() {
+            if [ "${LOGGING_ACTIVATED:-}" = "true" ]; then
+                return 0
+            fi
+
+            LOGGING_ACTIVATED=true
+            export LOGGING_ACTIVATED
+
             echo -e "${GREEN}Logging enabled. Log file: ${LOG_FILE}${NC}"
 
             LOG_DIR=$(dirname "${LOG_FILE}")
