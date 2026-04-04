@@ -57,7 +57,7 @@ if [ "$help" = true ]; then
   echo "Usage: $0 [OPTIONS]"
   echo "Options:"
   echo "  --deploy        Run deployment logic"
-  echo "  --migrate       Migrate to symblink deployment"
+  echo "  --migrate       Migrate to symlink deployment"
   echo "  --revert        Revert to previous deployment"
   echo "  --first         Run first deployment (use this for the first deployment)"
   echo "  --cleanup       Cleanup old releases"
@@ -86,8 +86,8 @@ if [ "$deploy" = true ]; then
 fi
 
 if [ "$migrate" = true ]; then
-    echo "Starting migration to symblink deployment..."
-    bash utilities/migrate_to_symblink.sh
+    echo "Starting migration to symlink deployment..."
+    bash utilities/migrate_to_symlink.sh
     exit 0
 fi
 
@@ -116,9 +116,9 @@ fi
 
 echo "Please select an option:"
 echo "1) Deploy"
-echo "2) Migrate to symblink deployment"
-echo "3) Revert to previous deployment (only applicable if symblink deployment is enabled, will throw an error if not)"
-echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symblink deployments, and will function the same as option 1 if used when symblink deployment is enabled."
+echo "2) Migrate to symlink deployment"
+echo "3) Revert to previous deployment (only applicable if symlink deployment is enabled, will throw an error if not)"
+echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symlink deployments, and will function the same as option 1 if used when symlink deployment is enabled."
 echo "5) Cleanup old releases"
 
 read -r choice
@@ -129,8 +129,8 @@ case $choice in
         bash deploy-logic/deploy.sh
         ;;
     2)
-        echo "Starting migration to symblink deployment..."
-        bash utilities/migrate_to_symblink.sh
+        echo "Starting migration to symlink deployment..."
+        bash utilities/migrate_to_symlink.sh
         ;;
     3)
         echo "Starting revert to previous deployment..."

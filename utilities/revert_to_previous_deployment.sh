@@ -54,8 +54,8 @@ for dir in "${dirs[@]}"; do
     ((i++))
 done
 
-echo -e "${RED}Warning: Whilst this will revert to a previous release simply be re-symblinking it, and database changes(as long as the database is either external, or in the shared directory) will be preserved.${NC}"
-echo -e "${YELLOW}This should not cause any loss, in the event of an issue, you can simply use this script to change the symblink back${NC}"
+echo -e "${RED}Warning: Whilst this will revert to a previous release simply be re-symlinking it, and database changes(as long as the database is either external, or in the shared directory) will be preserved.${NC}"
+echo -e "${YELLOW}This should not cause any loss, in the event of an issue, you can simply use this script to change the symlink back${NC}"
 echo "Please select a release to revert to (1-${#dirs[@]}): the active release is marked with a star, make note of the name, just in case you need to revert back"
 read -r choice
 

@@ -19,12 +19,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 FRAMEWORK="${FRAMEWORK:-$(get_env_var "FRAMEWORK" "$ENV_FILE")}"
-SYMBLINK_DEPLOYMENT="${SYMBLINK_DEPLOYMENT:-$(get_env_var "SYMBLINK_DEPLOYMENT" "$ENV_FILE")}"
+SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
 
 if [ "$FRAMEWORK" = "laravel" ]; then
-    if [ "$SYMBLINK_DEPLOYMENT" = "true" ]; then
-        echo -e "${GREEN}Starting symblink deployment${NC}"
-        bash deploy-logic/laravel/deploy_symblink.sh
+    if [ "$SYMLINK_DEPLOYMENT" = "true" ]; then
+        echo -e "${GREEN}Starting symlink deployment${NC}"
+        bash deploy-logic/laravel/deploy_symlink.sh
     else
         if [ "$first" = true ]; then
             echo -e "${GREEN}Starting first classical deployment${NC}"

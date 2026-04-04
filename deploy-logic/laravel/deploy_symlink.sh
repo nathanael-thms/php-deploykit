@@ -24,11 +24,11 @@ mkdir "$NEW_RELEASE_DIR"
 # Get code from git
 
 # Get the git repository path from .env
-SYMBLINK_DEPLOYMENT_GIT_PATH="${SYMBLINK_DEPLOYMENT_GIT_PATH:-$(get_env_var "SYMBLINK_DEPLOYMENT_GIT_PATH" "$ENV_FILE")}"
+SYMLINK_DEPLOYMENT_GIT_PATH="${SYMLINK_DEPLOYMENT_GIT_PATH:-$(get_env_var "SYMLINK_DEPLOYMENT_GIT_PATH" "$ENV_FILE")}"
 GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
 
-if [ -z "$SYMBLINK_DEPLOYMENT_GIT_PATH" ]; then
-    echo -e "${RED}SYMBLINK_DEPLOYMENT_GIT_PATH not set in environment or .env; aborting${NC}"
+if [ -z "$SYMLINK_DEPLOYMENT_GIT_PATH" ]; then
+    echo -e "${RED}SYMLINK_DEPLOYMENT_GIT_PATH not set in environment or .env; aborting${NC}"
     exit 1
 fi
 
@@ -37,27 +37,27 @@ if [ -z "$GIT_BRANCH" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}Cloning repository from $SYMBLINK_DEPLOYMENT_GIT_PATH (branch: $GIT_BRANCH)...${NC}"
+echo -e "${GREEN}Cloning repository from $SYMLINK_DEPLOYMENT_GIT_PATH (branch: $GIT_BRANCH)...${NC}"
 
-git clone --branch "$GIT_BRANCH" --depth 1 "$SYMBLINK_DEPLOYMENT_GIT_PATH" "$NEW_RELEASE_DIR"
+git clone --branch "$GIT_BRANCH" --depth 1 "$SYMLINK_DEPLOYMENT_GIT_PATH" "$NEW_RELEASE_DIR"
 
-# Symblink files and directories in shared to the new release
+# Symlink files and directories in shared to the new release
 SHARED_DIR="$APP_DIR/shared"
 if [ -d "$SHARED_DIR" ]; then
-    echo -e "${GREEN}Symblinking shared files and directories from $SHARED_DIR to $NEW_RELEASE_DIR...${NC}"
+    echo -e "${GREEN}Symlinking shared files and directories from $SHARED_DIR to $NEW_RELEASE_DIR...${NC}"
     shopt -s dotglob
     for item in "$SHARED_DIR"/*; do
         item_name=$(basename "$item")
         if [ -e $NEW_RELEASE_DIR/$(basename "$item") ]; then
-            echo -e "${YELLOW}Warning: $NEW_RELEASE_DIR/$(basename "$item") already exists and will be overwritten by the symblink.${NC}"
+            echo -e "${YELLOW}Warning: $NEW_RELEASE_DIR/$(basename "$item") already exists and will be overwritten by the symlink.${NC}"
             rm -rf "$NEW_RELEASE_DIR/$(basename "$item")"
         fi
-        echo -e "${GREEN}Symblinking $item to $NEW_RELEASE_DIR/$item_name${NC}"
+        echo -e "${GREEN}Symlinking $item to $NEW_RELEASE_DIR/$item_name${NC}"
         ln -sfn "$item" "$NEW_RELEASE_DIR/$item_name"
     done
     shopt -u dotglob
 else
-    echo -e "${YELLOW}No shared directory found at $SHARED_DIR; skipping symblinking of shared files.${NC}"
+    echo -e "${YELLOW}No shared directory found at $SHARED_DIR; skipping symlinking of shared files.${NC}"
 fi
 
 # Navigate to the new release directory
