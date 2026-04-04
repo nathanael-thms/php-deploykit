@@ -1,26 +1,26 @@
 # php-deploykit
 
-php-deploykit is a project, currently in development that allows deployment of php apps in two ways: [classical](#classical-deployment) and [symblink](#symblink-deployment) (recommended), on linux servers
+php-deploykit is a project currently in development that allows deployment of PHP apps in two ways: [classical](#classical-deployment) and [symlink](#symlink-deployment) (recommended) on Linux servers.
 
 ## Table of contents
 
 - [Installation](#installation)
 - [.env variables](#env-variables)
 - [Classical deployment](#classical-deployment)
-- [Symblink deployment](#symblink-deployment)
+- [symlink deployment](#symlink-deployment)
 
 ## Installation
 
-1. Install the required packages listed in [required packages](#required-packages)
-2. Get the code, this can be done via git clone on https(recommended), via github CLI, or you can download a .zip. the repo url is https://github.com/nathanael-thms/php-deploykit.git, so if you use git clone, you would run:
+1. Install the required packages listed in [Required packages](#required-packages).
+2. Get the code. This can be done via `git clone` over HTTPS (recommended), via the GitHub CLI, or by downloading a .zip. The repository URL is https://github.com/nathanael-thms/php-deploykit.git; to clone, run:
 ```bash
 git clone https://github.com/nathanael-thms/php-deploykit.git
 ```
-3. Make sure run.sh is executable, this is the only file that must be, as scripts called from it are run with the bash command, you can do this by running the following from in the directory you cloned it
+3. Make sure `run.sh` is executable. This is the only file that must be executable because scripts called from it are run with `bash`. From the directory you cloned the repository, run:
 ```bash
 chmod +x php-deploykit/run.sh
 ```
-4. If you would like to do a global install(be able to call it from any directory), execute the below in the directory you cloned it/installed it, assuming the folder is called php-deploykit. Don't run inside the installed directory itself, but it's parent, where php-deploykit is a child of it.
+4. If you would like to install globally (callable from any directory), run the following from the parent directory of `php-deploykit` (do not run this inside the `php-deploykit` directory). Replace the target path or name as desired.
 ```bash
 # If you have more than one app, you may want to move it to something else, eg.
 # sudo cp -r php-deploykit /opt/php-deploykit-app
@@ -32,143 +32,145 @@ sudo cp -r php-deploykit /opt/php-deploykit
 # create symlink of run.sh into PATH
 sudo ln -s /opt/php-deploykit/run.sh /usr/local/bin/php-deploykit
 ```
-In future steps, where it is said run php-deploykit, run the run.sh script , wherever it sits. If you used the above to symblink it into PATH, you can simply run php-deploykit, or if you changed the name, run that. eg. php-deploykit-app. If you did not symblink it, run {php-deploykit directory/run.sh}
+In later steps, when instructed to "run php-deploykit", execute the `run.sh` script from its installation location. If you created a symlink into `PATH`, you can run `php-deploykit` (or the name you chose). Otherwise run the script using the full path to the `run.sh` file.
 
 5. Create a .env file derived from .env.example, simply run the command below from inside the deploykit directory, then fill in/change the .env variables described in [.env syntax](#env-variables)
 ```bash
 cp .env.example .env
 ```
-6. Run the initial deployment, run php-deploykit and select option 4(or with the first flag), it should succeed
+6. Run the initial deployment: execute `php-deploykit` and select option 4 (or use the corresponding flag). It should succeed.
 
 ## Required packages
 
-php-deploykit aims to use as little packages as possible that are not part of coreutils(the packages preinstalled in virtually all linux distributions, such as cp, mv and ls), however, some still need to be installed
+php-deploykit aims to use as few packages as possible beyond the coreutils included in most Linux distributions (for example `cp`, `mv`, and `ls`), but some packages are required or recommended:
 
-- PHP, you almost certainly have this, since you are hosting a php application
+- PHP (required to host a PHP application)
 - Composer
-- Nodejs/NPM(if RUN_NPM="true" in .env)
-- rsync(required for automatic migration to symblink deployment) (Installed on most linux distributions)
-- git(currently the only way to use symblink deployment, though in classical you can turn off git pull in .env, but then you have no there way to retrieve the code)
-- SSH(if you are using it as the git clone method) (Installed on most linux distributions)
+- Node.js / npm (if `RUN_NPM="true"` in `.env`)
+- rsync (required for automatic migration to symlink deployment; installed on most Linux distributions)
+- git (required for symlink deployment; in classical mode you can disable `git pull`, but then there is no automated way to retrieve code)
+- SSH (if you use it for git cloning; installed on most Linux distributions)
 
-All the scripts in this app use /bin/bash, although this is present in virtually all linux distributions, you want to ensure it is present
+All scripts use `/bin/bash`; although present on most Linux distributions, ensure it is installed.
 
 
 ## .env variables
 
-This section will explain the different .env variables and what they do
+This section explains the `.env` variables and what they do.
 
-Think of the .env more like a config file, it does not hold any confidential data
+Think of the `.env` as a configuration file; it does not hold confidential data.
 
-**APP_DIR**: This variable tells the php-deploykit where your app sits.
+**APP_DIR**: This variable tells php-deploykit where your app is located.
 > [!NOTE]
-> If you are using symblink deployment, this is not including current. eg. **DO**: /var/www/app **DON'T**: /var/www/app/current
+> If you are using symlink deployment, this should not include `current`. For example, use `/var/www/app` rather than `/var/www/app/current`.
 
-**SYMBLINK_DEPLOYMENT**: This variable can be set to true or false, it tells the app weather to use symblink deployment. If false, it will use classical
+**symlink_DEPLOYMENT**: Set to `true` or `false`. When `true`, the script uses symlink deployment; when `false`, it uses classical deployment.
 > [!NOTE]
-> DO not set it to true unless symblink deployment it actually set up, this means the current and releases are set up, and almost certainly you'll want shared
+> Do not set this to `true` unless symlink deployment is actually set up (that is, `current` and `releases` directories exist). You will most likely also want a `shared` directory.
 
-**GIT_PULL**: Also a true/false only variable, it is only relevant for classical deployment, and will be ignored in symblink deployments. It will almost always be set to true, as there are currently no other automated methods to retrieve the code
+**GIT_PULL**: A `true`/`false` variable relevant only for classical deployment; it is ignored for symlink deployments. It will usually be `true`, since there is currently no other automated method to retrieve code.
 
-**GIT_BRANCH**: This variable is relevant weather you are using classical or symblink. In classical, it specifies which branch to pull from, in symblink, it specifies which branch to clone
+**GIT_BRANCH**: This variable is relevant whether you are using classical or symlink. In classical, it specifies which branch to pull from, in symlink, it specifies which branch to clone
 
-**FRAMEWORK**: This specifies which php framework the app , currently, only laravel is supported, though support for symfony is planned soon, and other frameworks may receive support later.
+**FRAMEWORK**: Specifies which PHP framework the app uses. Currently only Laravel is supported; Symfony support is planned.
 
-**MIGRATE**: This is a true/false only variable, it is relevant weather using classical or symblink. It tells the deployment script weather to run the migration command. eg. **php artisan migrate**
+**MIGRATE**: A `true`/`false` variable relevant for both classical and symlink deployments. When `true`, the deployment script runs the migration command (for example, `php artisan migrate`).
 
-**OPTIMIZE**: Also a true/false only variable, relevant weather using classical or symblink. Tells the deployment script weather to run the optimization command. eg. **php artisan optimize**
+**OPTIMIZE**: A `true`/`false` variable relevant for both deployment types. When `true`, the deployment script runs the optimization command (for example, `php artisan optimize`).
 
-**RUN_NPM**: Also a true/false only variable, relevant weather using classical or symblink. Tells the deployment script weather to run an npm command, specified in the next variable
+**RUN_NPM**: A `true`/`false` variable relevant for both deployment types. When `true`, the deployment script runs an npm command specified by `NPM_COMMAND`.
 
-**NPM_COMMAND**: This specifies the npm command that should be run, this variable can be omitted if RUN_NPM="false", though even if it is present, it will be ignored if RUN_NPM="false". eg. putting build will run **npm run build** in the deployment script
+**NPM_COMMAND**: Specifies the npm command to run. This can be omitted if `RUN_NPM="false"`; if present but `RUN_NPM="false"`, it will be ignored. For example, setting `build` runs `npm run build`.
 
-**LOG**: This is a true/false only variable, relevant whether using classical or symblink. Tells the deployment script whether to store output in a log file, specified in the next variable
+**LOG**: A `true`/`false` variable relevant for both deployment types. When `true`, the deployment script stores output in a log file specified by `LOG_FILE`.
 
-**LOG_FILE**: This specifies the where to store the logs, this variable can be omitted if LOG="false", though even if it is present, it will be ignored if LOG="false". Note you must ensure you have the necessary permissions to write to the specified file, if the file does not exist, the script will attempt to create it, but it may fail if you do not have permissions to write to the parent directory.
+**LOG_FILE**: Specifies where to store logs. This can be omitted if `LOG="false"`; if present but `LOG="false"`, it will be ignored. Ensure you have permissions to write to the specified file; if the file does not exist, the script will try to create it and may fail if you lack permissions for the parent directory.
 
-**DOWN_APP**: This is a true/false only variable, it is relevant only when using classical. It tells the deployment script whether to run the necessary command to put the app down before the main deployment process starts, and back up when it finishes successfully. eg. **php artisan down** && **php artisan up**. This is irrelevant for symblink because it is zero-downtime anyway
->[!IMPORTANT]
-> If any part of the script fails, it will stay down, you must manually put it back up unless **BRING_APP_UP_ON_FAILURE="true"**
+**DOWN_APP**: A `true`/`false` variable relevant only for classical deployment. When `true`, the deployment script runs the command to put the app down before deployment and bring it back up on success (for example, `php artisan down` && `php artisan up`). symlink deployment is zero-downtime, so this is not used there.
+> [!IMPORTANT]
+> If any part of the script fails while the app is down, it will remain down. You must manually bring it back up unless `BRING_APP_UP_ON_FAILURE="true"`.
 
-**BRING_APP_UP_ON_FAILURE**: This is a true/false only variable, it is relevant only when using classical and **DOWN_APP="true"** It tells the deployment script weather to run the necessary command to put the app back up if the main deployment process fails at any point, and and it was put down. eg. **php artisan up**. This is irrelevant for symblink because the app will never have been put down
->[!CAUTION]
-> This is strongly discouraged, as if it fails during a certain phase, it could leave a half broken app up to the public. This could pose significant vulnerabilities. This is another reason why symblink is great, an unsuccessfully deployed application will never be made public.
+**BRING_APP_UP_ON_FAILURE**: A `true`/`false` variable relevant only for classical deployment when `DOWN_APP="true"`. When `true`, the deployment script will attempt to bring the app back up if the main deployment process fails and the app had been put down (for example, `php artisan up`). This is not used for symlink deployments.
+> [!CAUTION]
+> This is strongly discouraged: if bringing the app back up fails during a partially completed deployment, it could expose a broken application to the public and create security risks. This is one reason symlink deployments are preferable: a failed deployment will not be made public.
 
-**SYMBLINK_DEPLOYMENT_GIT_PATH**: This variable, only relevant for symblink deployment tells the script where to get the repo, it is recommended to use shh if using github, like this: **SYMBLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"** This will cause the script to run: git clone --branch "whatever GIT_BRANCH is set to" --depth 1 git@github.com:user/app.git "app_dir/releases/timestamp"
+**symlink_DEPLOYMENT_GIT_PATH**: Relevant only for symlink deployment; this tells the script where to clone the repository. For GitHub, using SSH is recommended, for example: `symlink_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"`. The script will run a command similar to:
 
-**AUTO_CLEANUP**: This is a true/false only variable, it is relevant only when using symblink deployment tells the script weather to auto clean up old releases, keeping the latest **KEEP_RELEASES** releases
+`git clone --branch "<GIT_BRANCH>" --depth 1 git@github.com:user/app.git "<APP_DIR>/releases/<timestamp>"`
 
-**KEEP_RELEASES**: This variable, only relevant for symblink deployment and when **AUTO_CLEANUP="true"** tells the auto cleanup script to keep the latest **KEEP_RELEASES** releases
+**AUTO_CLEANUP**: A `true`/`false` variable relevant only for symlink deployment. When `true`, the script automatically cleans up old releases, keeping the latest `KEEP_RELEASES` releases.
 
-The values must be surrounded with "" quotes to ensure the scripts parse them correctly
+**KEEP_RELEASES**: This variable, only relevant for symlink deployment and when **AUTO_CLEANUP="true"** tells the auto cleanup script to keep the latest **KEEP_RELEASES** releases
 
-Variables that are irrelevant but still inputted will simply be ignored
+Values must be surrounded by double quotes (`""`) so the scripts parse them correctly.
+
+Variables that are irrelevant to the chosen deployment mode will be ignored.
 
 ## Usage
-The php-deploykit command/run.sh file can be run with options, here they are listed.
+The `php-deploykit` command / `run.sh` can be run with options. Available flags:
 
 | Flag | Function |
 |---|---|
-| deploy | The same as running without flags and selecting option 1, does a classical/symblink deployment, following the settings in .env. Does not require human interaction |
-| migrate | The same as running without flags and selecting option 2, starts migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). Requires human interaction |
-| revert | The same as running without flags and selecting option 3, symblink only. Reverts to a previous deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires human interaction |
-| first | The same as running without flags and selecting option 4, starts initial deployment, this only makes a difference in classical, doing this in symblink will just do the same as option 1. ONLY USE FOR FIRST DEPLOYMENT. Does not require human interaction, though it is recommended you oversee it, since it is the first deployment |
-| cleanup | The same as running without flags and selecting option 5, symblink only. cleans up old releases as described in [cleaning up old releases](#cleaning-up-old-releases). Can be followed up. eg. --cleanup-10 keeps the latest 10. Requires human interaction if not followed up with a dash and an integer |
-| help | Prints the available flags |
+| `deploy` | Same as running without flags and selecting option 1. Performs a classical or symlink deployment according to `.env`. Does not require user interaction. |
+| `migrate` | Same as selecting option 2. Starts migration to symlink deployment as described in [Migration to symlink deployment](#migration-to-symlink-deployment). Requires user interaction. |
+| `revert` | Same as selecting option 3 (symlink only). Reverts to a previous deployment as described in [Reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires user interaction. |
+| `first` | Same as selecting option 4. Use this for the initial deployment; it prevents the app-down command from being run in classical mode. Does not require user interaction but oversight is recommended. |
+| `cleanup` | Same as selecting option 5 (symlink only). Cleans up old releases as described in [Cleaning up old releases](#cleaning-up-old-releases). Can be followed by `-<n>` (for example `--cleanup-10`) to keep the latest `n` releases. Requires user interaction if not followed by an integer. |
+| `help` | Prints the available flags. |
 
-Only one option at a time may be specified
+Only one option may be specified at a time. Example:
 
-eg. php-deploykit --deploy
+`php-deploykit --deploy`
 
-Running it without specifying an option will give you a menu, and you may select 1, 2, 3 4 or 5, more detailed info on each option can be found below:
+Running without flags presents a menu where you can select 1, 2, 3, 4, or 5. More detailed information on each option follows.
 
 ### Option 1/deploy
 
-This calls the deploy-logic/deploy.sh script, this script checks .env, sees weather to run symblink or classical, and runs the specific one for your framework, currently, only laravel is supported. So, if in .env, framework is set to laravel and symblink deployment is true, it runs deploy-logic/laravel/deploy_symblink.sh
+This calls `deploy-logic/deploy.sh`. That script checks `.env` to determine whether to use symlink or classical deployment, then runs the framework-specific deployment script. Currently only Laravel is supported; for Laravel with symlink enabled it runs `deploy-logic/laravel/deploy_symlink.sh`.
 
 ### Option 2/migrate
 
-This is for migration to symlink deployment as described in [migration to symblink deployment](#migration-to-symblink-deployment). It calls utilities/migrate_to_symblink.sh
+This starts the migration to symlink deployment as described in [Migration to symlink deployment](#migration-to-symlink-deployment). It calls `utilities/migrate_to_symlink.sh`.
 
 ### Option 3/revert
 
-This helps revert to a previous deployment if using symblink deployment as described in [reverting to a previous deployment](#reverting-to-a-previous-deployment). It calls utilities/revert_to_previous_deployment.sh
+This reverts to a previous deployment when using symlink deployment, as described in [Reverting to a previous deployment](#reverting-to-a-previous-deployment). It calls `utilities/revert_to_previous_deployment.sh`.
 
 ### Option 4/first
 
-Does the exact same as option 1, just ensures, if using classical deployment, that the app down command. eg. php artisan down is not run.
+Performs the same actions as option 1 but ensures that the app-down command (for example `php artisan down`) is not run in classical deployment.
 
 ### Option 5/cleanup
 
-This helps clean up old releases if using symblink deployment as described in [cleaning up old releases](#cleaning-up-old-releases). It calls utilities/clean_up_releases.sh
+Cleans up old releases when using symlink deployment, as described in [Cleaning up old releases](#cleaning-up-old-releases). It calls `utilities/clean_up_releases.sh`.
 
 ## Classical deployment
 
-Classical is a normal deployment, it puts the app down(if DOWN_APP="true") in .env, runs the relevant commands, and if the app was put down, it puts it back up
+Classical deployment is a standard deployment process. If `DOWN_APP="true"`, the script will put the app down, run the relevant commands, and bring the app back up on success.
 
-## Symblink deployment
+## symlink deployment
 
-Symblink deployment(recommended) is a more modern, zero-downtime and reversible deployment, every time run, it clones the git repo(truncated to 1 commit) into {app directory}/releases/{timestamp}, runs deployment there, then, after all is completed, creates/overwrites the existing symblink to the {app directory}/current/ directory, this is where you point your web server. Symblink deployment also allows for a {app directory}/shared/ directory, and in every deployment, all files/directories in shared are symblinked to the new release directory(which becomes symblinked to the current directory after completion of deployment), this is useful for things like the 'storage folder' and .env files
+symlink deployment (recommended) is a zero-downtime, reversible deployment method. Each run clones the Git repository (shallow, depth 1) into `{app directory}/releases/{timestamp}`, runs the deployment there, and then updates the `current` symlink to point at the new release directory (this is what your web server should point to). symlink deployment also supports a `{app directory}/shared/` directory; files and directories in `shared` are symlinked into the new release, which keeps data like the `storage` folder and `.env` files persistent across deployments.
 
 > [!WARNING]
-> If a file/directory in the shared folder already exists in the new releases folder, it will be overwritten by the symblink, this is by design, for example, laravel does include the storage directory in git, just all it's contents are gitignored, then the empty storage folder will be overwritten by the symblink, making it persistent across deployments
+> If a file or directory in the `shared` folder also exists in the new release, it will be overwritten by the symlink. This is by design. For example, Laravel includes the `storage` directory in Git but ignores its contents; the empty `storage` folder in the repository will be replaced by the symlink to the persistent `storage` in `shared`.
 
-### Migration to symblink deployment
+### Migration to symlink deployment
 
-This is always a headache, so this web app includes a script to do this automatically, it does everything except clear caches/recache and change your web servers config, to run the script, run php-deploykit, choose option 2, and follow the prompts, afterwards, clear/recache as instructed, and change your web server to point to the new 'current' directory
+Migration to symlink deployment can be complicated. This project includes a script to automate the process; it performs all steps except clearing/recaching application caches and updating your web server configuration. To run the script, execute `php-deploykit`, choose option 2, and follow the prompts. Afterwards clear and recache the application as instructed and update your web server to point to the new `current` directory.
 
 > [!CAUTION]
-> Read the prompts of the script carefully, failure to do this could pose a security risk
+> Read the script prompts carefully; failure to follow instructions may pose a security risk.
 
-To symblink files, move them to app dir/shared, and redeploy
+To symlink files, move them to `APP_DIR/shared` and redeploy.
 
 ### Reverting to a previous deployment
 
-Another key advantage of symblink deployment is you can revert back to previous deployment, if you realize you pushed a bug. It just re-maps the current symblink to an older release directory. It outputs directory names in an easy to read format, in newest-oldest order, prompts you to select a number from 1-however many releases, although it is named revert, it can be used to go nack to a newer deployment after reverting. To run the script, run php-deploykit, choose option 3, and follow the prompts.
+A key advantage of symlink deployment is the ability to revert to a previous deployment if a bug is discovered. The script remaps the `current` symlink to an older release directory. It lists releases in newest-to-oldest order and prompts you to select a number. Although named "revert", the script can also be used to move forward again if needed. To run it, execute `php-deploykit`, choose option 3, and follow the prompts.
 
 ### Cleaning up old releases
 
-Eventually, your server will be filled with releases, as a quick way to clean them up, php-deploykit includes a script, it will run, and will(if number of releases is greater than 1) prompt you for how many you would like to keep, say I put in 10, it will keep the 10 newest releases, and delete the rest. To run the script, run php-deploykit, choose option 5, and follow the prompts. If you enter a number greater than or equal to the number of present releases, the script will not delete anything and exit 0, to aid in having this in automatons
+Over time your server may accumulate many releases. To clean them up, `php-deploykit` includes a cleanup script. When run, if there is more than one release, it prompts for how many releases to keep (for example, entering `10` keeps the 10 newest releases and deletes the rest). To run the script, execute `php-deploykit`, choose option 5, and follow the prompts. If you enter a number greater than or equal to the current number of releases, the script does nothing and exits with code 0, which makes automation easier.
 
 > [!CAUTION]
-> If you used revert or manually changed the symblink, to an older release, say you put in 10 for how many to keep, and you had reverted to the 11th newest release, the web server will stop working, as the symblink current will point to a non-existent directory
+> If you have reverted or manually changed the `current` symlink to an older release, cleaning up by keeping the latest `n` releases may remove the directory pointed to by `current`. This will cause the web server to stop working.
