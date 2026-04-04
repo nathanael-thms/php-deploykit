@@ -82,7 +82,11 @@ Think of the .env more like a config file, it does not hold any confidential dat
 
 **NPM_COMMAND**: This specifies the npm command that should be run, this variable can be omitted if RUN_NPM="false", though even if it is present, it will be ignored if RUN_NPM="false". eg. putting build will run **npm run build** in the deployment script
 
-**DOWN_APP**: This is a true/false only variable, it is relevant only when using classical. It tells the deployment script weather to run the necessary command to put the app down before the main deployment process starts, and back up when it finishes successfully. eg. **php artisan down** && **php artisan up**. This is irrelevant for symblink because it is zero-downtime anyway
+**LOG**: This is a true/false only variable, relevant whether using classical or symblink. Tells the deployment script whether to store output in a log file, specified in the next variable
+
+**LOG_FILE**: This specifies the where to store the logs, this variable can be omitted if LOG="false", though even if it is present, it will be ignored if LOG="false". Note you must ensure you have the necessary permissions to write to the specified file, if the file does not exist, the script will attempt to create it, but it may fail if you do not have permissions to write to the parent directory.
+
+**DOWN_APP**: This is a true/false only variable, it is relevant only when using classical. It tells the deployment script whether to run the necessary command to put the app down before the main deployment process starts, and back up when it finishes successfully. eg. **php artisan down** && **php artisan up**. This is irrelevant for symblink because it is zero-downtime anyway
 >[!IMPORTANT]
 > If any part of the script fails, it will stay down, you must manually put it back up unless **BRING_APP_UP_ON_FAILURE="true"**
 
