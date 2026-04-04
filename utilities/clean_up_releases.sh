@@ -2,10 +2,17 @@
 
 set -euo pipefail
 
+first="first"
 cleanup_num=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+    
+      --called)
+       first=false
+       shift
+       ;;
+
       *)
           num="${1#--cleanup-}"
           if  [[ "$num" =~ ^[0-9]+$ ]] || [ "$num" -ge 2 ]; then
@@ -21,6 +28,8 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../utilities/common.sh"
+
+activate_logging "$first"
 
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"

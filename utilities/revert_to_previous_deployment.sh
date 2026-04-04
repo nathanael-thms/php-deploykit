@@ -6,6 +6,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
+activate_logging "first"
+
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
 

@@ -18,20 +18,22 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+activate_logging "first"
+
 FRAMEWORK="${FRAMEWORK:-$(get_env_var "FRAMEWORK" "$ENV_FILE")}"
 SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
 
 if [ "$FRAMEWORK" = "laravel" ]; then
     if [ "$SYMLINK_DEPLOYMENT" = "true" ]; then
         echo -e "${GREEN}Starting symlink deployment${NC}"
-        bash deploy-logic/laravel/deploy_symlink.sh
+        bash deploy-logic/laravel/deploy_symlink.sh --called
     else
         if [ "$first" = true ]; then
             echo -e "${GREEN}Starting first classical deployment${NC}"
-            bash deploy-logic/laravel/deploy_classical.sh --first
+            bash deploy-logic/laravel/deploy_classical.sh --first --called
         else
             echo -e "${GREEN}Starting classical deployment${NC}"
-            bash deploy-logic/laravel/deploy_classical.sh
+            bash deploy-logic/laravel/deploy_classical.sh --called
         fi
     fi
 

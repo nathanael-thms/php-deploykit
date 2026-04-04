@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Common utilities: colors, project-root detection, ENV_FILE and helpers
 
 RED='\033[0;31m'
@@ -34,18 +36,20 @@ get_env_var() {
     LOG_FILE="${LOG_FILE:-$(get_env_var "LOG_FILE" "$ENV_FILE")}"
 
     if [ "${LOG_ENABLED}" = true ]; then
+        activate_logging() {
+            echo -e "${GREEN}Logging enabled. Log file: ${LOG_FILE}${NC}"
 
-        echo "Logging enabled. Log file: ${LOG_FILE}"
+            LOG_DIR=$(dirname "${LOG_FILE}")
+            mkdir -p "${LOG_DIR}" 2>/dev/null || true
+            touch "${LOG_FILE}" 2>/dev/null || true
 
-        LOG_DIR=$(dirname "${LOG_FILE}")
-        mkdir -p "${LOG_DIR}" 2>/dev/null || true
-        touch "${LOG_FILE}" 2>/dev/null || true
+            # Add a header for this run
+            if [ "$1" = "first" ]; then
+                printf "\n---- deploykit run: %s ----\n" "$(date '+%Y-%m-%d %H:%M:%S')" >> "${LOG_FILE}" 2>/dev/null || true
+            fi
 
-        # Add a header for this run
-        printf "\n---- deploykit run: %s ----\n" "$(date '+%Y-%m-%d %H:%M:%S')" >> "${LOG_FILE}" 2>/dev/null || true
-    
-        # Print output to file and console
-        exec > >(tee >(sed -u $'s/\x1b\\[[0-9;]*m//g' >> "$LOG_FILE")) 2>&1
-
+            # Print output to file and console
+            exec > >(tee >(sed -u $'s/\x1b\\[[0-9;]*m//g' >> "$LOG_FILE")) 2>&1
+        }
     fi
 }

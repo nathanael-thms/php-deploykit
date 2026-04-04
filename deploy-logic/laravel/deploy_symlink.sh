@@ -2,9 +2,26 @@
 
 set -euo pipefail
 
+first="first"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+      --called)
+       first=false
+       shift
+       ;;
+
+      *)
+        shift
+        ;;
+    esac
+done
+
 # Load shared utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../../utilities/common.sh"
+
+activate_logging "$first"
 
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
@@ -116,7 +133,7 @@ if [ "$AUTO_CLEANUP" = "true" ]; then
         exit 1
     fi
     echo -e "${GREEN}Running automatic cleanup of old releases, keeping the latest $KEEP_RELEASES releases...${NC}"
-    bash $SCRIPT_DIR/../../utilities/clean_up_releases.sh $KEEP_RELEASES
+    bash $SCRIPT_DIR/../../utilities/clean_up_releases.sh $KEEP_RELEASES --called
 else
     echo -e "${YELLOW}Skipping automatic cleanup as AUTO_CLEANUP is not set to true.${NC}"
 fi

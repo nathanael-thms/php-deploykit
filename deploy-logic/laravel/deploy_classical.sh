@@ -2,11 +2,8 @@
 
 set -euo pipefail
 
-# Load shared utilities
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../../utilities/common.sh"
-
 first=false
+called="first"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -14,13 +11,23 @@ while [[ $# -gt 0 ]]; do
       first=true
       shift
       ;;
+
+    --called)
+     first=false
+     shift
+     ;;
+
     *)
       shift
       ;;
   esac
 done
 
-# (project root, ENV_FILE and get_env_var are provided by utilities/common.sh)
+# Load shared utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../../utilities/common.sh"
+
+activate_logging "$called"
 
 # read APP_DIR
 APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
