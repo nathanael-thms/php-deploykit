@@ -8,6 +8,7 @@ revert=false
 first=false
 cleanup=false
 cleanup_num=""
+logs=false
 help=false
 
 while [[ $# -gt 0 ]]; do
@@ -43,6 +44,12 @@ while [[ $# -gt 0 ]]; do
       fi
       shift
       ;;
+    
+    --logs)
+      logs=true
+      shift
+      ;;
+
     --help)
       help=true
       shift
@@ -62,6 +69,7 @@ if [ "$help" = true ]; then
   echo "  --first         Run first deployment (use this for the first deployment)"
   echo "  --cleanup       Cleanup old releases"
   echo "  --cleanup-N     Cleanup old releases, keeping the latest N releases (N must be an integer greater than or equal to 2)"
+  echo "  --logs          View deployment logs"
   echo "  --help          Show this help message"
   exit 0
 fi
@@ -73,9 +81,10 @@ count=0
 [ "$revert" = true ] && ((count+=1))
 [ "$first" = true ] && ((count+=1))
 [ "$cleanup" = true ] && ((count+=1))
+[ "$logs" = true ] && ((count+=1))
 
 if [ "$count" -gt 1 ]; then
-  echo "Error: only one of --deploy, --migrate, --revert, or --cleanup may be specified." >&2
+  echo "Error: only one of --deploy, --migrate, --revert, --cleanup, or --logs may be specified." >&2
   exit 2
 fi
 
@@ -114,12 +123,19 @@ if [ "$cleanup" = true ]; then
     exit 0
 fi
 
+if [ "$logs" = true ]; then
+    echo "Starting log viewer..."
+    bash utilities/view_logs.sh
+    exit 0
+fi
+
 echo "Please select an option:"
 echo "1) Deploy"
 echo "2) Migrate to symlink deployment"
 echo "3) Revert to previous deployment (only applicable if symlink deployment is enabled, will throw an error if not)"
 echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symlink deployments, and will function the same as option 1 if used when symlink deployment is enabled."
 echo "5) Cleanup old releases"
+echo "6) View logs"
 
 read -r choice
 
@@ -144,6 +160,10 @@ case $choice in
     5)
         echo "Starting cleanup of old releases..."
         bash utilities/clean_up_releases.sh
+        ;;
+    6)
+        echo "Starting log viewer..."
+        bash utilities/view_logs.sh
         ;;
     *)
         echo "Invalid option selected. Exiting."
