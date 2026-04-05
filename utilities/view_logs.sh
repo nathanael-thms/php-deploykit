@@ -72,3 +72,5 @@ else
     next_run_line="${runs[selected_index + 1]}"
     sed -n "${selected_line},$((next_run_line - 1))p" "$LOG_FILE"
 fi
+
+exit 0
