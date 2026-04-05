@@ -23,9 +23,58 @@ if [ ! -f "$LOG_FILE" ]; then
     exit 1
 fi
 
+# Find the runs, throw an error if no runs are found.
+
 mapfile -t runs < <(grep -n -- "---- deploykit run: " "$LOG_FILE" | cut -d: -f1)
 
 if [ ${#runs[@]} -eq 0 ]; then
     echo -e "${YELLOW}No deploykit runs found in log file: ${LOG_FILE}${NC}"
     exit 0
+fi
+
+# List the runs(newest first) and prompt the user to select one. If the run ends with a successful message, show it in green. Otherwise, show it in red, otherwise show it in yellow.
+
+for (( i=${#runs[@]}-1; i>=0; i-- )); do
+    line_num="${runs[i]}"
+    run_time=$(sed -n "${line_num}p" "$LOG_FILE" | sed -E "s/---- deploykit run: (.*) ----/\1/")
+    # Check if the run has a successful message on its last non-empty line
+    range_start=$((line_num + 1))
+    if [ $((i + 1)) -lt ${#runs[@]} ]; then
+        range_end=$((runs[i+1] - 1))
+        run_lines=$(sed -n "${range_start},${range_end}p" "$LOG_FILE")
+    else
+        run_lines=$(sed -n "${range_start},\$p" "$LOG_FILE")
+    fi
+    if echo "$run_lines" | sed '/^[[:space:]]*$/d' | tail -n 1 | grep -qi "successfully"; then
+        echo -e "${GREEN}$(( ${#runs[@]} - i )) ) $run_time${NC}"
+    else
+        echo -e "${RED}$(( ${#runs[@]} - i )) ) $run_time${NC}"
+    fi
+done
+
+echo "Successful runs are in green, failed runs are in red. Select a deploykit run to view logs(1-${#runs[@]}):"
+read -r choice
+
+# Validate the input
+
+if ! [[ "$choice" =~ ^[1-9][0-9]*$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt ${#runs[@]} ]; then
+    echo -e "${RED}Invalid choice. Please enter a number between 1 and ${#runs[@]}.${NC}"
+    exit 1
+fi
+
+# Print the selected run's logs to the console
+
+selected_line="${runs[${#runs[@]} - choice]}"
+next_line=$((selected_line + 1))
+if [ "$choice" -eq 1 ]; then
+    # If it's the first run, print from the start of the file
+    sed -n "1,${next_line}p" "$LOG_FILE"
+else
+    # Print from the selected run to the next run (or end of file if it's the last run)
+    if [ "$choice" -eq ${#runs[@]} ]; then
+        sed -n "${selected_line},\$p" "$LOG_FILE"
+    else
+        next_run_line="${runs[${#runs[@]} - choice + 1]}"
+        sed -n "${selected_line},$((next_run_line - 1))p" "$LOG_FILE"
+    fi
 fi
