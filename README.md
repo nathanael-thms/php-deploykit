@@ -6,8 +6,9 @@ php-deploykit is a project currently in development that allows deployment of PH
 
 - [Installation](#installation)
 - [.env variables](#env-variables)
+- [Usage](#usage)
 - [Classical deployment](#classical-deployment)
-- [symlink deployment](#symlink-deployment)
+- [Symlink deployment](#symlink-deployment)
 
 ## Installation
 
@@ -64,7 +65,7 @@ Think of the `.env` as a configuration file; it does not hold confidential data.
 > [!NOTE]
 > If you are using symlink deployment, this should not include `current`. For example, use `/var/www/app` rather than `/var/www/app/current`.
 
-**symlink_DEPLOYMENT**: Set to `true` or `false`. When `true`, the script uses symlink deployment; when `false`, it uses classical deployment.
+**SYMLINK_DEPLOYMENT**: Set to `true` or `false`. When `true`, the script uses symlink deployment; when `false`, it uses classical deployment.
 > [!NOTE]
 > Do not set this to `true` unless symlink deployment is actually set up (that is, `current` and `releases` directories exist). You will most likely also want a `shared` directory.
 
@@ -94,7 +95,7 @@ Think of the `.env` as a configuration file; it does not hold confidential data.
 > [!CAUTION]
 > This is strongly discouraged: if bringing the app back up fails during a partially completed deployment, it could expose a broken application to the public and create security risks. This is one reason symlink deployments are preferable: a failed deployment will not be made public.
 
-**symlink_DEPLOYMENT_GIT_PATH**: Relevant only for symlink deployment; this tells the script where to clone the repository. For GitHub, using SSH is recommended, for example: `symlink_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"`. The script will run a command similar to:
+**SYMLINK_DEPLOYMENT_GIT_PATH**: Relevant only for symlink deployment; this tells the script where to clone the repository. For GitHub, using SSH is recommended, for example: `SYMLINK_DEPLOYMENT_GIT_PATH="git@github.com:user/app.git"`. The script will run a command similar to:
 
 `git clone --branch "<GIT_BRANCH>" --depth 1 git@github.com:user/app.git "<APP_DIR>/releases/<timestamp>"`
 
@@ -148,9 +149,9 @@ Cleans up old releases when using symlink deployment, as described in [Cleaning 
 
 Classical deployment is a standard deployment process. If `DOWN_APP="true"`, the script will put the app down, run the relevant commands, and bring the app back up on success.
 
-## symlink deployment
+## Symlink deployment
 
-symlink deployment (recommended) is a zero-downtime, reversible deployment method. Each run clones the Git repository (shallow, depth 1) into `{app directory}/releases/{timestamp}`, runs the deployment there, and then updates the `current` symlink to point at the new release directory (this is what your web server should point to). symlink deployment also supports a `{app directory}/shared/` directory; files and directories in `shared` are symlinked into the new release, which keeps data like the `storage` folder and `.env` files persistent across deployments.
+Symlink deployment (recommended) is a zero-downtime, reversible deployment method. Each run clones the Git repository (shallow, depth 1) into `{app directory}/releases/{timestamp}`, runs the deployment there, and then updates the `current` symlink to point at the new release directory (this is what your web server should point to). symlink deployment also supports a `{app directory}/shared/` directory; files and directories in `shared` are symlinked into the new release, which keeps data like the `storage` folder and `.env` files persistent across deployments.
 
 > [!WARNING]
 > If a file or directory in the `shared` folder also exists in the new release, it will be overwritten by the symlink. This is by design. For example, Laravel includes the `storage` directory in Git but ignores its contents; the empty `storage` folder in the repository will be replaced by the symlink to the persistent `storage` in `shared`.
