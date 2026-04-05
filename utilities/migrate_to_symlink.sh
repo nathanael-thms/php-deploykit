@@ -94,9 +94,9 @@ else
             echo -e "${YELLOW}Skipping storage directory persistence setup. Remember to move your .env file to the shared directory and symlink it to ensure it persists across deployments.${NC}"
         fi
 
-        echo -e "${GREEN}Migration to symlink deployment completed successfully.${NC}"
         echo -e "${GREEN}Before you put your app back up, you must cd into the new directory: $APP_DIR/current, clear all caches and rebuild them(you will otherwise run into route not found and similar errors), then test the app, and you can put it back up to the public.${NC}"
         echo -e "${GREEN}If there are any other files, move them to shared and symlink them, they will be auto symlinked in future deployments${NC}"
+        echo -e "${GREEN}Migration to symlink deployment completed successfully.${NC}"
         exit 0
     else
         echo -e "${YELLOW}Migration to symlink deployment cancelled by user.${NC}"
