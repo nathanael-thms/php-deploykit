@@ -117,6 +117,7 @@ The `php-deploykit` command / `run.sh` can be run with options. Available flags:
 | `revert` | Same as selecting option 3 (symlink only). Reverts to a previous deployment as described in [Reverting to a previous deployment](#reverting-to-a-previous-deployment). Requires user interaction. |
 | `first` | Same as selecting option 4. Use this for the initial deployment; it prevents the app-down command from being run in classical mode. Does not require user interaction but oversight is recommended. |
 | `cleanup` | Same as selecting option 5 (symlink only). Cleans up old releases as described in [Cleaning up old releases](#cleaning-up-old-releases). Can be followed by `-<n>` (for example `--cleanup-10`) to keep the latest `n` releases. Requires user interaction if not followed by an integer. |
+| `logs` | Same as selecting option 6. Displays all the deployments, red if failed and green if successful. Then prompts for you to select a deployment to view logs for. If all you wanted to do is check if it was successful, press Ctrl+C after viewing the logs. |
 | `help` | Prints the available flags. |
 
 Only one option may be specified at a time. Example:
@@ -144,6 +145,16 @@ Performs the same actions as option 1 but ensures that the app-down command (for
 ### Option 5/cleanup
 
 Cleans up old releases when using symlink deployment, as described in [Cleaning up old releases](#cleaning-up-old-releases). It calls `utilities/clean_up_releases.sh`.
+
+### Option 6/logs.
+
+Displays all deployments, red if failed and green if successful. Then prompts for you to select a deployment to view logs for. Only works if logging is enabled. If all you wanted to do is check if it was successful, press Ctrl+C after viewing the logs. It calls `utilities/view_logs.sh`.
+
+## Logging
+
+php-deploykit can log deployment output to a file specified by `LOG_FILE` in `.env`. If `LOG="true"`, the script stores output in the log file; if `LOG="false"`, it does not. Ensure you have permissions to write to the specified file; if the file does not exist, the script will try to create it and may fail if you lack permissions for the parent directory.
+
+Every time you run a command via run.sh, it creates a new log entry with the date and time. You can view logs for a specific deployment by running `php-deploykit --logs` or selecting option 6 from the menu.
 
 ## Classical deployment
 
