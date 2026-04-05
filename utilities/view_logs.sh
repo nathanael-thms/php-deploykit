@@ -65,16 +65,10 @@ fi
 # Print the selected run's logs to the console
 
 selected_line="${runs[${#runs[@]} - choice]}"
-next_line=$((selected_line + 1))
-if [ "$choice" -eq 1 ]; then
-    # If it's the first run, print from the start of the file
-    sed -n "1,${next_line}p" "$LOG_FILE"
+selected_index=$(( ${#runs[@]} - choice ))
+if [ $((selected_index + 1)) -ge ${#runs[@]} ]; then
+    sed -n "${selected_line},\$p" "$LOG_FILE"
 else
-    # Print from the selected run to the next run (or end of file if it's the last run)
-    if [ "$choice" -eq ${#runs[@]} ]; then
-        sed -n "${selected_line},\$p" "$LOG_FILE"
-    else
-        next_run_line="${runs[${#runs[@]} - choice + 1]}"
-        sed -n "${selected_line},$((next_run_line - 1))p" "$LOG_FILE"
-    fi
+    next_run_line="${runs[selected_index + 1]}"
+    sed -n "${selected_line},$((next_run_line - 1))p" "$LOG_FILE"
 fi
