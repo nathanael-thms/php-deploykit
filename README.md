@@ -2,6 +2,9 @@
 
 php-deploykit is a project currently in development that allows deployment of PHP apps in two ways: [classical](#classical-deployment) and [symlink](#symlink-deployment) (recommended) on Linux servers.
 
+> [!WARNING]
+> Use in production environments at your own risk, but it is **not yet recommended**. Breaking changes may occur before the v1.0.0 release.
+
 ## Table of contents
 
 - [Installation](#installation)
@@ -13,9 +16,9 @@ php-deploykit is a project currently in development that allows deployment of PH
 ## Installation
 
 1. Install the required packages listed in [Required packages](#required-packages).
-2. Get the code. This can be done via `git clone` over HTTPS (recommended), via the GitHub CLI, or by downloading a .zip. The repository URL is https://github.com/nathanael-thms/php-deploykit.git; to clone, run:
+2. Get the code. This can be done via `git clone` over HTTPS (recommended), via the GitHub CLI, or by downloading a .zip. The repository URL is https://github.com/nathanael-thms/php-deploykit.git; to clone, run this command to download the latest version:
 ```bash
-git clone https://github.com/nathanael-thms/php-deploykit.git
+git clone --branch v0.2.0 --depth 1 https://github.com/nathanael-thms/php-deploykit.git
 ```
 3. Make sure `run.sh` is executable. This is the only file that must be executable because scripts called from it are run with `bash`. From the directory you cloned the repository, run:
 ```bash
