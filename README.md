@@ -189,3 +189,7 @@ Over time your server may accumulate many releases. To clean them up, `php-deplo
 
 > [!CAUTION]
 > If you have reverted or manually changed the `current` symlink to an older release, cleaning up by keeping the latest `n` releases may remove the directory pointed to by `current`. This will cause the web server to stop working.
+
+## License
+
+php-deploykit is licensed under the Apache 2.0 License. See the [LICENSE](LICENSE) file or https://www.apache.org/licenses/LICENSE-2.0 for the full license text.
