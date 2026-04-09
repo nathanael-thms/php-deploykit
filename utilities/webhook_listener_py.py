@@ -43,9 +43,9 @@ project_root = script_dir.parent
 env_file = project_root / '.env'
 
 # Load configuration
-PORT = int(get_env_var('WEBHOOK_PORT', str(env_file)) or 8080)
-SECRET = get_env_var('WEBHOOK_SECRET', str(env_file)) or 'your_webhook_secret'
-PROVIDER = get_env_var('WEBHOOK_PROVIDER', str(env_file)) or 'github'
+PORT = int(get_env_var('WEBHOOK_PORT', str(env_file)))
+SECRET = get_env_var('WEBHOOK_SECRET', str(env_file))
+PROVIDER = get_env_var('WEBHOOK_PROVIDER', str(env_file))
 
 logger.info(f"Webhook Listener Configuration:")
 logger.info(f"  Port: {PORT}")
@@ -61,9 +61,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length).decode('utf-8', errors='ignore')
         
-        # Get headers
-        referer = self.headers.get('Referer', '')
-        
         # Get signature based on provider
         sig_header = {
             'github': 'X-Hub-Signature-256',
@@ -74,15 +71,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         signature = self.headers.get(sig_header, '')
         
         logger.info(f"Received webhook: {self.path} from {self.client_address[0]}")
-        
-        # Verify request source (referer check)
-        if not self._verify_request(referer):
-            logger.warning(f"Invalid source: {referer}")
-            self.send_response(403)
-            self.send_header('Content-Type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'Invalid source')
-            return
         
         # Verify signature
         if not self._verify_signature(body, signature):
@@ -96,26 +84,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         # Process webhook
         logger.info(f"Processing webhook payload ({len(body)} bytes)")
         self._process_webhook(body)
-        
-        # Send success response
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Webhook processed')
-    
-    def _verify_request(self, referer: str) -> bool:
-        """Verify request source based on provider"""
-        if not referer:
-            return False
-        
-        provider_hosts = {
-            'github': 'github.com',
-            'gitlab': 'gitlab.com',
-            'bitbucket': 'bitbucket.org',
-        }
-        
-        expected_host = provider_hosts.get(PROVIDER, '')
-        return expected_host in referer if expected_host else False
     
     def _verify_signature(self, body: str, signature: str) -> bool:
         """Verify webhook signature based on provider"""
@@ -147,16 +115,16 @@ class WebhookHandler(BaseHTTPRequestHandler):
             payload = json.loads(body)
             logger.debug(f"Payload: {json.dumps(payload, indent=2)}")
             
-            # Add processing logic here
-            # Example: trigger deployment based on event
-            # if payload.get('action') == 'push':
-            #     logger.info("Push event detected, triggering deployment...")
-            #     # subprocess.run([...deploy...])
             logger.info(f"Running deployment script...")
-            script_path = project_root.parent / 'run.sh'
+            script_path = Path(__file__).parent / '../run.sh'
             try:
-                subprocess.run(['bash', str(script_path)], check=True)
+                subprocess.run(['bash', str(script_path), '--deploy'], check=False)
                 logger.info("Deployment script executed successfully")
+                # Send success response
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'Webhook processed')
             except subprocess.CalledProcessError as e:
                 logger.error(f"Deployment script failed with code {e.returncode}")
             
