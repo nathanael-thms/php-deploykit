@@ -46,11 +46,23 @@ env_file = project_root / '.env'
 PORT = int(get_env_var('WEBHOOK_PORT', str(env_file)))
 SECRET = get_env_var('WEBHOOK_SECRET', str(env_file))
 PROVIDER = get_env_var('WEBHOOK_PROVIDER', str(env_file))
+LOG_WEBHOOK = get_env_var('LOG_WEBHOOK', str(env_file)).lower() == 'true'
+WEBHOOK_LOG_FILE = get_env_var('WEBHOOK_LOG_FILE', str(env_file))
+
+if LOG_WEBHOOK and WEBHOOK_LOG_FILE:
+    log_path = Path(WEBHOOK_LOG_FILE)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
 
 logger.info(f"Webhook Listener Configuration:")
 logger.info(f"  Port: {PORT}")
 logger.info(f"  Provider: {PROVIDER}")
 logger.info(f"  Secret: {'*' * (len(SECRET) - 4) + SECRET[-4:]}")
+if LOG_WEBHOOK and WEBHOOK_LOG_FILE:
+    logger.info(f"  Webhook log file: {WEBHOOK_LOG_FILE}")
 
 class WebhookHandler(BaseHTTPRequestHandler):
     """Handle incoming webhook requests"""
