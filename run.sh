@@ -9,6 +9,7 @@ first=false
 cleanup=false
 cleanup_num=""
 logs=false
+webhook_listener=false
 help=false
 
 while [[ $# -gt 0 ]]; do
@@ -50,6 +51,12 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
 
+    --webhook-listener)
+      echo "Starting webhook listener..."
+      python3 utilities/webhook_listener_py.py
+      exit 0
+      ;;
+
     --help)
       help=true
       shift
@@ -63,14 +70,15 @@ done
 if [ "$help" = true ]; then
   echo "Usage: $0 [OPTIONS]"
   echo "Options:"
-  echo "  --deploy        Run deployment logic"
-  echo "  --migrate       Migrate to symlink deployment"
-  echo "  --revert        Revert to previous deployment"
-  echo "  --first         Run first deployment (use this for the first deployment)"
-  echo "  --cleanup       Cleanup old releases"
-  echo "  --cleanup-N     Cleanup old releases, keeping the latest N releases (N must be an integer greater than or equal to 2)"
-  echo "  --logs          View deployment logs"
-  echo "  --help          Show this help message"
+  echo "  --deploy              Run deployment logic"
+  echo "  --migrate             Migrate to symlink deployment"
+  echo "  --revert              Revert to previous deployment"
+  echo "  --first               Run first deployment (use this for the first deployment)"
+  echo "  --cleanup             Cleanup old releases"
+  echo "  --cleanup-N           Cleanup old releases, keeping the latest N releases (N must be an integer greater than or equal to 2)"
+  echo "  --logs                View deployment logs"
+  echo "  --webhook-listener    Start the webhook listener (make sure to set WEBHOOK_PORT, WEBHOOK_SECRET and WEBHOOK_PROVIDER environment variables)"
+  echo "  --help                Show this help message"
   exit 0
 fi
 
@@ -82,9 +90,11 @@ count=0
 [ "$first" = true ] && ((count+=1))
 [ "$cleanup" = true ] && ((count+=1))
 [ "$logs" = true ] && ((count+=1))
+[ "$webhook_listener" = true ] && ((count+=1))
+[ "$help" = true ] && ((count+=1))
 
 if [ "$count" -gt 1 ]; then
-  echo "Error: only one of --deploy, --migrate, --revert, --cleanup, or --logs may be specified." >&2
+  echo "Error: only one of --deploy, --migrate, --revert, --cleanup, --logs, --webhook-listener or --help may be specified." >&2
   exit 2
 fi
 
@@ -136,6 +146,7 @@ echo "3) Revert to previous deployment (only applicable if symlink deployment is
 echo "4) Run first deployment(use this for the first deployment, then switch to option 1 for subsequent deployments) This option is irrelevant for symlink deployments, and will function the same as option 1 if used when symlink deployment is enabled."
 echo "5) Cleanup old releases"
 echo "6) View logs"
+echo "Starting webhook listener is not included here to prevent accidental port clashes from mistyping number, use --webhook-listener flag to start it instead."
 
 read -r choice
 
