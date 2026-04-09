@@ -52,7 +52,7 @@ for (( i=${#runs[@]}-1; i>=0; i-- )); do
     fi
 done
 
-echo "Successful runs are in green, failed runs are in red. Select a deploykit run to view logs(1-${#runs[@]}):"
+echo "Successful runs are in green, failed/incomplete runs are in red. Select a deploykit run to view logs(1-${#runs[@]}):"
 read -r choice
 
 # Validate the input
