@@ -106,6 +106,12 @@ Think of the `.env` as a configuration file; it does not hold confidential data.
 
 **KEEP_RELEASES**: This variable, only relevant for symlink deployment and when **AUTO_CLEANUP="true"** tells the auto cleanup script to keep the latest **KEEP_RELEASES** releases
 
+**WEBHOOK_PORT**: This variable is used to specify the port the webhook listener uses to listen on.
+
+**WEBHOOK_SECRET**: This variable is used to specify the secret the webhook listener uses to verify incoming requests.
+
+**WEBHOOK_PROVIDER**: This variable is used to specify the provider the webhook listener is expecting requests from. Supported values are `github`, `gitlab` and `bitbucket`.
+
 Values must be surrounded by double quotes (`""`) so the scripts parse them correctly.
 
 Variables that are irrelevant to the chosen deployment mode will be ignored.
@@ -121,13 +127,16 @@ The `php-deploykit` command / `run.sh` can be run with options. Available flags:
 | `first` | Same as selecting option 4. Use this for the initial deployment; it prevents the app-down command from being run in classical mode. Does not require user interaction but oversight is recommended. |
 | `cleanup` | Same as selecting option 5 (symlink only). Cleans up old releases as described in [Cleaning up old releases](#cleaning-up-old-releases). Can be followed by `-<n>` (for example `--cleanup-10`) to keep the latest `n` releases. Requires user interaction if not followed by an integer. |
 | `logs` | Same as selecting option 6. Displays all the deployments, red if failed and green if successful. Then prompts for you to select a deployment to view logs for. If all you wanted to do is check if it was successful, press Ctrl+C after viewing the logs. |
+| `webhook_listener` | Starts the webhook listener. Meant to be executed by a systemd service. |
+| `webhook-service-install` | Installs the webhook listener as a systemd service. |
+| `webhook-service-uninstall` | Uninstalls the webhook listener systemd service. |
 | `help` | Prints the available flags. |
 
 Only one option may be specified at a time. Example:
 
 `php-deploykit --deploy`
 
-Running without flags presents a menu where you can select 1, 2, 3, 4, or 5. More detailed information on each option follows.
+Running without flags presents a menu where you can select 1, 2, 3, 4, 5, 6 or 7. More detailed information on each option follows.
 
 ### Option 1/deploy
 
@@ -153,11 +162,33 @@ Cleans up old releases when using symlink deployment, as described in [Cleaning 
 
 Displays all deployments, red if failed and green if successful. Then prompts for you to select a deployment to view logs for. Only works if logging is enabled. If all you wanted to do is check if it was successful, press Ctrl+C after viewing the logs. It calls `utilities/view_logs.sh`.
 
+### webhook_listener
+
+This purposefully must be executed by flags, to prevent accidental running when mistyping the selection. It starts the webhook listener, which listens for incoming webhook requests and triggers deployments when a request is received. It calls `webhook_listener/webhook_listener.sh`. It is recommended to run this via a systemd.
+
+### Option 7/webhook-service-install
+
+This installs the webhook listener as a systemd service. It calls `utilities/webhook_listener_service_install.sh`, which creates a systemd service file for the webhook listener and starts the service. The service is configured to start on boot and restart automatically if it fails.
+
+### webhook-service-uninstall
+
+This uninstalls the webhook listener systemd service. It calls `utilities/webhook_listener_service_uninstall.sh`, which stops the service, disables it from starting on boot, and removes the service file. Can not be run with option number to prevent accidents
+
 ## Logging
 
 php-deploykit can log deployment output to a file specified by `LOG_FILE` in `.env`. If `LOG="true"`, the script stores output in the log file; if `LOG="false"`, it does not. Ensure you have permissions to write to the specified file; if the file does not exist, the script will try to create it and may fail if you lack permissions for the parent directory.
 
 Every time you run a command via run.sh, it creates a new log entry with the date and time. You can view logs for a specific deployment by running `php-deploykit --logs` or selecting option 6 from the menu.
+
+## Webhook listener
+
+The webhook listener listens for incoming webhook requests and triggers deployments when a request is received. It uses the `WEBHOOK_PORT`, `WEBHOOK_SECRET`, and `WEBHOOK_PROVIDER` variables in `.env` to determine how to listen for requests and verify them. It is recommended to run the webhook listener via a systemd service.
+
+### Install as a service(recommended)
+
+To install the webhook listener as a systemd service, run php-deploykit --webhook-service-install or select the corresponding option from the menu. This runs the `utilities/webhook_listener_service_install.sh` script, which creates a systemd service file for the webhook listener and starts the service. The service is configured to start on boot and restart automatically if it fails.
+
+To remove, run `php-deploykit --webhook-service-uninstall` or select the corresponding option from the menu. This stops the service, disables it from starting on boot, and removes the service file.
 
 ## Classical deployment
 
