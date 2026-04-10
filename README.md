@@ -120,6 +120,12 @@ Think of the `.env` as a configuration file; it does not hold confidential data.
 
 **WEBHOOK_LOG_FILE**: Specifies where to store logs of incoming webhook requests. This can be omitted if `LOG_WEBHOOK="false"`; if present but `LOG_WEBHOOK="false"`, it will be ignored. Ensure you have permissions to write to the specified file; ensure the file exists.
 
+**GITHUB_REPORTING**: A `true`/`false` variable that specifies whether to report deployment status back to GitHub when using the webhook listener with GitHub. If `true`, the script reports deployment status back to GitHub, which can be viewed by checking the repository's commits, described in [reporting deployment status back to GitHub](#reporting-deployment-status-back-to-github). This is not used for other providers.
+
+**GITHUB_TOKEN**: If `GITHUB_REPORTING="true"`, this variable is used to specify a GitHub token with permissions to create deployment statuses in the repository. The script uses this token to authenticate with the GitHub API when reporting deployment status. Also described in [reporting deployment status back to GitHub](#reporting-deployment-status-back-to-github).
+
+**GITHUB_REPO_OWNER** and **GITHUB_REPO_NAME**: If `GITHUB_REPORTING="true"`, these variables are used to specify the owner and name of the GitHub repository, respectively. The script uses these variables to identify which repository to report deployment status for when using the GitHub API. Also described in [reporting deployment status back to GitHub](#reporting-deployment-status-back-to-github)
+
 Values must be surrounded by double quotes (`""`) so the scripts parse them correctly.
 
 Variables that are irrelevant to the chosen deployment mode will be ignored.
@@ -203,6 +209,36 @@ There is no polished interface for viewing webhook logs; you can view them by op
 ## Webhook listener
 
 The webhook listener listens for incoming webhook requests and triggers deployments when a request is received. It uses the `WEBHOOK_PORT`, `WEBHOOK_SECRET`, and `WEBHOOK_PROVIDER` variables in `.env` to determine how to listen for requests and verify them. It is recommended to run the webhook listener via a systemd service.
+
+### Reporting deployment status back to GitHub
+
+If you are using the webhook listener with GitHub and have `GITHUB_REPORTING="true"` in `.env`, the script reports deployment status back to GitHub, which can be viewed by checking the repository's commits. FIll in all the fields, below are steps for creating a GitHub token with the necessary permissions.
+
+#### Create your token
+
+1. Go to your GitHub account settings, then Developer settings, then Fine-grained tokens(under personal access tokens)
+
+2. Click "Generate new token"
+
+3. Give it a name, like deploykit status, and optionally give it a description and expiry date. Under Repository access, select "Only select repositories", under select repositories, select the repository you want to deploy. Under Permissions, click on Repositories, then add permissions, select "Commit Statuses, then, under the access dropdown, select "Read and write". Leave metadata as it is. Then click "Generate token" at the bottom of the page.
+
+4. Copy the generated token and paste it into `GITHUB_TOKEN` in your `.env` file.
+
+5. Restart the webhook listener via systemctl to apply the changes.
+
+#### Viewing deployment status in GitHub
+
+1. Go to the GitHub repository you are deploying.
+2. Click on "Commits"
+3. Click on the commit you want to check the deployment status for.
+4. At the top, you will see a small tick, a red cross, or a grey dot next to the commit message. A tick means the deployment was successful, a red cross means it failed, and a grey dot means the deployment is in progress. You can click on the symbol to view more details about the deployment status. If you have other checks enabled, click and see the one called "Deployment" to view the deployment status.
+
+If you do not see any deployment status, make sure you have set `GITHUB_REPORTING="true"` in `.env`, filled in `GITHUB_TOKEN`, `GITHUB_REPO_OWNER`, and `GITHUB_REPO_NAME` correctly, and restarted the webhook listener via systemctl. You may want to enable webhook logging temporarily to debug and make sure the deploykit is able to communicate with GitHub's API.
+
+Deployment status reporting is only available for GitHub; it is not supported for GitLab or Bitbucket.
+
+> [!NOTE]
+> This is only for push webhook events, not the ping ones
 
 ### Install as a service(recommended)
 
