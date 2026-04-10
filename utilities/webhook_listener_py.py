@@ -68,14 +68,13 @@ logger.info(f"  Secret: {'*' * (len(SECRET) - 4) + SECRET[-4:]}")
 if LOG_WEBHOOK and WEBHOOK_LOG_FILE:
     logger.info(f"  Webhook log file: {WEBHOOK_LOG_FILE}")
 
-def send_github_status(state: str, description: str, context: str = 'php-deploykit'):
+def send_github_status(sha: str, state: str, description: str):
     """Send deployment status to GitHub"""
     if not GITHUB_REPORTING:
         return
     
     import requests
-    
-    url = f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}/statuses/HEAD"
+    url = f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}/statuses/{sha}"
     headers = {
         'Authorization': f'token {GITHUB_TOKEN}',
         'Accept': 'application/vnd.github.v3+json'
@@ -83,15 +82,14 @@ def send_github_status(state: str, description: str, context: str = 'php-deployk
     data = {
         'state': state,
         'description': description,
-        'context': context
+        'context': 'Deployment'
     }
-    
     try:
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 201:
-            logger.info("GitHub status updated successfully")
+            logger.info(f"GitHub status updated: {state} - {description}")
         else:
-            logger.warning(f"Failed to update GitHub status: {response.status_code} - {response.text}")
+            logger.error(f"Failed to update GitHub status: {response.status_code} - {response.text}")
     except Exception as e:
         logger.error(f"Error sending GitHub status: {e}")
         
@@ -162,11 +160,19 @@ class WebhookHandler(BaseHTTPRequestHandler):
             payload = json.loads(body)
             logger.debug(f"Payload: {json.dumps(payload, indent=2)}")
             
+            commit_sha = payload.get("after")
+            logger.info(f"Commit SHA: {commit_sha}")
+
+            if commit_sha:
+                send_github_status(commit_sha, "pending", "Deployment started")
+
             logger.info(f"Running deployment script...")
             script_path = Path(__file__).parent / '../run.sh'
             try:
-                subprocess.run(['bash', str(script_path), '--deploy'], check=False)
+                subprocess.run(['bash', str(script_path), '--deploy'], check=True)
                 logger.info("Deployment script executed successfully")
+                if commit_sha:
+                    send_github_status(commit_sha, "success", "Deployment succeeded")
                 # Send success response
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
@@ -174,6 +180,8 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b'Webhook processed')
             except subprocess.CalledProcessError as e:
                 logger.error(f"Deployment script failed with code {e.returncode}")
+                if commit_sha:
+                    send_github_status(commit_sha, "failure", "Deployment failed")
             
         except json.JSONDecodeError:
             logger.warning(f"Invalid JSON in payload")
