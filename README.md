@@ -197,6 +197,9 @@ There is no polished interface for viewing webhook logs; you can view them by op
 > [!NOTE]
 > You should still view logs to make sure the deploykit runs are executing successfully when using the webhook listener, even if you do not log webhook requests. A good way to do a first test is by checking how many runs are available with `php-deploykit --logs` before sending a test webhook, then sending the test webhook and checking if a new run appears in the logs, it should be in green. If it appears, but read, you can check the error there, if you still cannot figure it out, or no run appears, enable webhook logging and trigger another test webhook, then check the webhook log file for errors.
 
+> [!NOTE]
+> You must use systemctl to restart the webhook listener if you change the .env variables related to the webhook listener, since the listener only reads those variables on startup.
+
 ## Webhook listener
 
 The webhook listener listens for incoming webhook requests and triggers deployments when a request is received. It uses the `WEBHOOK_PORT`, `WEBHOOK_SECRET`, and `WEBHOOK_PROVIDER` variables in `.env` to determine how to listen for requests and verify them. It is recommended to run the webhook listener via a systemd service.
