@@ -48,6 +48,10 @@ SECRET = get_env_var('WEBHOOK_SECRET', str(env_file))
 PROVIDER = get_env_var('WEBHOOK_PROVIDER', str(env_file))
 LOG_WEBHOOK = get_env_var('LOG_WEBHOOK', str(env_file)).lower() == 'true'
 WEBHOOK_LOG_FILE = get_env_var('WEBHOOK_LOG_FILE', str(env_file))
+GITHUB_REPORTING = get_env_var('GITHUB_REPORTING', str(env_file)).lower() == 'true'
+GITHUB_TOKEN = get_env_var('GITHUB_TOKEN', str(env_file))
+GITHUB_REPO_OWNER = get_env_var('GITHUB_REPO_OWNER', str(env_file))
+GITHUB_REPO_NAME = get_env_var('GITHUB_REPO_NAME', str(env_file))
 
 if LOG_WEBHOOK and WEBHOOK_LOG_FILE:
     log_path = Path(WEBHOOK_LOG_FILE)
@@ -63,6 +67,37 @@ logger.info(f"  Provider: {PROVIDER}")
 logger.info(f"  Secret: {'*' * (len(SECRET) - 4) + SECRET[-4:]}")
 if LOG_WEBHOOK and WEBHOOK_LOG_FILE:
     logger.info(f"  Webhook log file: {WEBHOOK_LOG_FILE}")
+
+def send_github_status(state: str, description: str, context: str = 'php-deploykit'):
+    """Send deployment status to GitHub"""
+    if not GITHUB_REPORTING:
+        return
+    
+    import requests
+    
+    url = f"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}/statuses/HEAD"
+    headers = {
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    data = {
+        'state': state,
+        'description': description,
+        'context': context
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 201:
+            logger.info("GitHub status updated successfully")
+        else:
+            logger.warning(f"Failed to update GitHub status: {response.status_code} - {response.text}")
+    except Exception as e:
+        logger.error(f"Error sending GitHub status: {e}")
+        
+if GITHUB_REPORTING:
+    logger.info(f"  GitHub reporting enabled for {GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}")
+    logger.info(f"  GitHub token: {'*' * (len(GITHUB_TOKEN) - 4) + GITHUB_TOKEN[-4:]}")
 
 class WebhookHandler(BaseHTTPRequestHandler):
     """Handle incoming webhook requests"""
