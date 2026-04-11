@@ -66,7 +66,7 @@ All scripts use `/bin/bash`; although present on most Linux distributions, ensur
 
 This section explains the `.env` variables and what they do.
 
-Think of the `.env` as a configuration file; it does not hold confidential data.
+Think of the `.env` as a configuration file; it does not hold confidential data(except for GitHub tokens).
 
 **APP_DIR**: This variable tells php-deploykit where your app is located.
 > [!NOTE]
