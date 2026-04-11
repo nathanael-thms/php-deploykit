@@ -21,7 +21,7 @@ php-deploykit is a project currently in development that allows deployment of PH
 1. Install the required packages listed in [Required packages](#required-packages).
 2. Get the code. This can be done via `git clone` over HTTPS (recommended), via the GitHub CLI, or by downloading a .zip. The repository URL is https://github.com/nathanael-thms/php-deploykit.git; to clone, run this command to download the latest version:
 ```bash
-git clone --branch v0.2.0 --depth 1 https://github.com/nathanael-thms/php-deploykit.git
+git clone --branch v0.4.0 --depth 1 https://github.com/nathanael-thms/php-deploykit.git
 ```
 3. Make sure `run.sh` is executable. This is the only file that must be executable because scripts called from it are run with `bash`. From the directory you cloned the repository, run:
 ```bash
