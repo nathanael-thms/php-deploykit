@@ -8,7 +8,9 @@ UPDATE=false
 echo "Please select an option"
 echo "1) Install(latest stable, currently no stable release has been published, so this will fail)"
 echo "2) Install(very latest)"
-# echo "3) Update existing installation"
+# Following untested
+echo "3) Update existing installation(latest stable)"
+echo "4) Update existing installation(very latest)"
 
 read -r choice
 
@@ -20,9 +22,13 @@ case $choice in
       INSTALL=true
       PRE=true
       ;;
-    # 3)
-    #   UPDATE=true
-    #   ;;
+    3)
+      UPDATE=true
+      ;;
+    4)
+      UPDATE=true
+      PRE=true
+      ;;
     *) 
       echo "Invalid option selected. Exiting."
       exit 1
@@ -70,5 +76,52 @@ if [ "$INSTALL" = true ]; then
   else
     echo "Aborting"
     exit 0
+  fi
+
+else
+  echo "Starting Updater"
+  echo "Searching for command: php-deploykit"
+  INSTALL_DIR=$(dirname "$(readlink -f "$(command -v php-deploykit)")")
+  if [[ -d "$INSTALL_DIR" && "$INSTALL_DIR" != "." ]]; then
+    echo "Updating installation in directory: $INSTALL_DIR"
+    UPDATE_DIR="${INSTALL_DIR}-update"
+    BACKUP_DIR="${INSTALL_DIR}-backup"
+    sudo rm -rf "$UPDATE_DIR"
+    sudo mkdir -p "$UPDATE_DIR"
+    cd "$UPDATE_DIR"
+    if [ "$PRE" = true ]; then
+        URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases"
+    else
+        URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
+    fi
+
+    RELEASE_TAG=$(curl -s "$URL" | grep -m 1 '"tag_name":' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/' || echo "")  
+    if [ -z "$RELEASE_TAG" ]; then
+      echo "Error: Could not determine the release tag."
+      exit 1
+    fi
+
+    echo "Updating to $RELEASE_TAG"
+    TMP_CLONE=$(mktemp -d)
+    git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git "$TMP_CLONE"
+
+    # Use sudo only to move the files into /opt
+    sudo rsync -av "$TMP_CLONE/" "$UPDATE_DIR/"
+
+    # Cleanup the temp clone
+    rm -rf "$TMP_CLONE"
+    if [ -f "$INSTALL_DIR/config.php" ]; then
+        sudo cp -a "$INSTALL_DIR/config.php" "$UPDATE_DIR/config.php"
+    fi
+
+    sudo mv "$INSTALL_DIR" "$BACKUP_DIR"
+    sudo mv "$UPDATE_DIR" "$INSTALL_DIR"
+
+    sudo rm -rf "$BACKUP_DIR"
+
+    echo "Update complete!"
+  else
+    echo "No install found"
+    exit 1
   fi
 fi
