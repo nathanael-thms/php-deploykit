@@ -5,14 +5,20 @@ INSTALL=false
 PRE=false
 UPDATE=false
 
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+else
+    echo "Error: python3 is not installed."
+    exit 1
+fi
+
 echo "Please select an option"
 echo "1) Install(latest stable, currently no stable release has been published, so this will fail)"
 echo "2) Install(very latest)"
-# Following untested
 echo "3) Update existing installation(latest stable)"
 echo "4) Update existing installation(very latest)"
 
-read -r choice
+read -r choice < /dev/tty
 
 case $choice in
     1)
@@ -42,29 +48,29 @@ if [ "$INSTALL" = true ]; then
       URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
   fi
 
-  RELEASE_TAG=$(curl -s "$URL" | grep -m 1 '"tag_name":' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/' || echo "")  
+  RELEASE_TAG=$(curl -sL -H "User-Agent: php-deploykit-installer" "$URL" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data[0]['tag_name'] if isinstance(data, list) else data['tag_name'])")
   if [ -z "$RELEASE_TAG" ]; then
     echo "Error: Could not determine the release tag."
     exit 1
   fi
 
   echo "Selected Version: $RELEASE_TAG. Confirm (y/n)"
-  read -r confirm
+  read -r confirm < /dev/tty
   if [ "$confirm" = "y" ]; then
     echo "Cloning git repo"
     git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git
     echo "Repo cloned"
     chmod +x php-deploykit/run.sh
     echo "Would you like to install globally(y/n)"
-    read -r global_install
+    read -r global_install < /dev/tty
     if [ $global_install = "y" ]; then
       echo "Select install location(/opt/php-deploykit)"
-      read -r input_path
+      read -r input_path < /dev/tty
       install_location="${input_path:-/opt/php-deploykit}"
       sudo rsync -avz --delete "php-deploykit/" "$install_location/"
       rm -rf php-deploykit
       echo "Symlinking into PATH. Select command name(php-deploykit) WARNING: WILL DELETE EXISTING SYMLINKS AT LOCATION"
-      read -r command_input
+      read -r command_input < /dev/tty
       command_name="${command_input:-php-deploykit}"
       sudo ln -sf "$install_location"/run.sh /usr/local/bin/php-deploykit
       hash -r
@@ -95,7 +101,7 @@ else
         URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
     fi
 
-    RELEASE_TAG=$(curl -s "$URL" | grep -m 1 '"tag_name":' | sed -E 's/.*"tag_name": "([^"]+)".*/\1/' || echo "")  
+    RELEASE_TAG=$(curl -sL -H "User-Agent: php-deploykit-installer" "$URL" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data[0]['tag_name'] if isinstance(data, list) else data['tag_name'])")
     if [ -z "$RELEASE_TAG" ]; then
       echo "Error: Could not determine the release tag."
       exit 1
