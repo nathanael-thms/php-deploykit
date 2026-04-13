@@ -61,7 +61,7 @@ if [ "$INSTALL" = true ]; then
     git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git
     echo "Repo cloned"
     chmod +x php-deploykit/run.sh
-    echo "Would you like to install globally(y/n)"
+    echo "Would you like to install globally(y/n)  WARNING: WILL DELETE EXISTING SYMLINKS AT LOCATION /usr/local/bin/php-deploykit."
     read -r global_install < /dev/tty
     if [ $global_install = "y" ]; then
       echo "Select install location(/opt/php-deploykit)"
@@ -69,9 +69,7 @@ if [ "$INSTALL" = true ]; then
       install_location="${input_path:-/opt/php-deploykit}"
       sudo rsync -avz --delete "php-deploykit/" "$install_location/"
       rm -rf php-deploykit
-      echo "Symlinking into PATH. Select command name(php-deploykit) WARNING: WILL DELETE EXISTING SYMLINKS AT LOCATION"
-      read -r command_input < /dev/tty
-      command_name="${command_input:-php-deploykit}"
+      echo "Symlinking into PATH. (php-deploykit)"
       sudo ln -sf "$install_location"/run.sh /usr/local/bin/php-deploykit
       hash -r
       echo "Installation completed successfully."
