@@ -30,6 +30,53 @@ get_env_var() {
     printf '%s' "$val"
 }
 
+# Pre flight checks
+pre_flight_checks() {
+    # These checks are untested
+    # Permission checks
+    APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
+
+    if [ -z "$APP_DIR" ]; then
+        echo "APP_DIR not set in environment or .env; aborting"
+        exit 1
+    fi
+
+    if [ ! -w "$APP_DIR" ]; then
+        echo "No write permission to APP_DIR: $APP_DIR; aborting"
+        exit 1
+    fi
+
+    # Always dependency checks
+    if ! command -v php >/dev/null 2>&1; then
+        echo "PHP is not present on the system"
+        exit 1
+    fi
+
+    if ! command -v composer >/dev/null 2>&1; then
+        echo "Composer is not present on the system"
+        exit 1
+    fi
+
+    # Sometimes dependency checks
+    SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
+    GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
+    if [ "$SYMLINK_DEPLOYMENT" = "true" | "$GIT_PULL" = "true" ]; then
+        if ! command -v git >/dev/null 2>&1; then
+            echo "Git is not present on the system"
+            exit 1
+        fi
+    fi
+
+    RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
+
+    if [ "$RUN_NPM" = "true" ]; then
+        if ! command -v npm >/dev/null 2>&1; then
+            echo "NPM is not present on the system"
+            exit 1
+        fi
+    fi
+}
+
 # Logging logic
 {
     LOG_ENABLED="${LOG:-$(get_env_var "LOG" "$ENV_FILE")}"
