@@ -35,7 +35,7 @@ pre_flight_checks() {
     PRE_FLIGHT_CHECKS="${PRE_FLIGHT_CHECKS:-$(get_env_var "PRE_FLIGHT_CHECKS" "$ENV_FILE")}"
     if [ "$PRE_FLIGHT_CHECKS" = "true" ]; then
         echo "Starting pre flight checks"
-        exit 0
+        
         # Permission checks
         APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
     
