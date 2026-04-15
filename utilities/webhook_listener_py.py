@@ -125,7 +125,12 @@ class WebhookHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Invalid signature')
             return
-        
+        # Send success response
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Webhook processed')
+    
         # Process webhook
         logger.info(f"Processing webhook payload ({len(body)} bytes)")
         self._process_webhook(body)
@@ -173,11 +178,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 logger.info("Deployment script executed successfully")
                 if commit_sha:
                     send_github_status(commit_sha, "success", "Deployment succeeded")
-                # Send success response
-                self.send_response(200)
-                self.send_header('Content-Type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(b'Webhook processed')
             except subprocess.CalledProcessError as e:
                 logger.error(f"Deployment script failed with code {e.returncode}")
                 if commit_sha:
