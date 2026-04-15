@@ -17,6 +17,7 @@ Documentation is available at [https://deploykit.nattho.com](https://deploykit.n
 - Easy log viewing, see at a glance which deployments failed and which succeeded(color coded), and view the logs for each deployment without manually opening the log files
 - Automatic cleanup of old releases, keeping the latest releases specified with KEEP_RELEASES in .env(if enabled)
 - Easy configuration with .env file
+- Robust pre-flight-checks
 - Open source and free to use
 
 ## Supported frameworks
