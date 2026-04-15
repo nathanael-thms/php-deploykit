@@ -5,10 +5,26 @@ INSTALL=false
 PRE=false
 UPDATE=false
 
+trap 'rm -rf "${TMP_CLONE:-}"' EXIT
+
 if command -v python3 >/dev/null 2>&1; then
     PYTHON_CMD="python3"
 else
     echo "Error: python3 is not installed."
+    exit 1
+fi
+
+if command -v rsync >/dev/null 2>&1; then
+    RSYNC_CMD="rsync"
+else
+    echo "Error: rsync is not installed."
+    exit 1
+fi
+
+if command -v git >/dev/null 2>&1; then
+    GIT_CMD="git"
+else
+    echo "Error: git is not installed."
     exit 1
 fi
 
@@ -41,36 +57,48 @@ case $choice in
       ;;
 esac
 
-if [ "$INSTALL" = true ]; then
-  if [ "$PRE" = true ]; then
-      URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases"
-  else
-      URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
-  fi
+if [ "$PRE" = true ]; then
+  URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases"
+else
+  URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
+fi
 
-  RELEASE_TAG=$(curl -sL -H "User-Agent: php-deploykit-installer" "$URL" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data[0]['tag_name'] if isinstance(data, list) else data['tag_name'])")
-  if [ -z "$RELEASE_TAG" ]; then
-    echo "Error: Could not determine the release tag."
+RESPONSE=$(curl -sL -H "User-Agent: php-deploykit-installer" "$URL")
+
+if echo "$RESPONSE" | grep -q '"message":'; then
+    echo "GitHub API Error: $(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('message'))")"
     exit 1
-  fi
+fi
 
+RELEASE_TAG=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d[0]['tag_name'] if isinstance(d, list) else d['tag_name'])" || true)
+
+if [ -z "$RELEASE_TAG" ]; then
+  echo "Error: Could not determine release tag."
+  exit 1
+fi
+
+install() {
   echo "Selected Version: $RELEASE_TAG. Confirm (y/n)"
   read -r confirm < /dev/tty
   if [ "$confirm" = "y" ]; then
+    echo "Creating temporary directory"
+    TMP_CLONE=$(mktemp -d)
     echo "Cloning git repo"
-    git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git
+    git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git "$TMP_CLONE"
     echo "Repo cloned"
-    chmod +x php-deploykit/run.sh
-    echo "Would you like to install globally(y/n)  WARNING: WILL DELETE EXISTING SYMLINKS AT LOCATION /usr/local/bin/php-deploykit."
+    chmod +x "$TMP_CLONE"/run.sh
+    echo "Would you like to install globally(y/n)"
     read -r global_install < /dev/tty
-    if [ $global_install = "y" ]; then
+    if [ "$global_install" = "y" ]; then
       echo "Select install location(/opt/php-deploykit)"
       read -r input_path < /dev/tty
       install_location="${input_path:-/opt/php-deploykit}"
-      sudo rsync -avz --delete "php-deploykit/" "$install_location/"
-      rm -rf php-deploykit
-      echo "Symlinking into PATH. (php-deploykit)"
-      sudo ln -sf "$install_location"/run.sh /usr/local/bin/php-deploykit
+      sudo rsync -avz --delete "$TMP_CLONE/" "$install_location/"
+      rm -rf "$TMP_CLONE"
+      echo "Symlinking into PATH. Enter the name of the command you wish to link to run.sh (php-deploykit)   WARNING: WILL DELETE EXISTING SYMLINKS AT /usr/local/bin/whatever-command-name-you-choose."
+      read -r input_command < /dev/tty
+      install_command="${input_command:-php-deploykit}"
+      sudo ln -sf "$install_location"/run.sh /usr/local/bin/"$install_command"
       hash -r
       echo "Installation completed successfully."
     else
@@ -81,35 +109,43 @@ if [ "$INSTALL" = true ]; then
     echo "Aborting"
     exit 0
   fi
+}
 
-else
-  echo "Starting Updater"
-  echo "Searching for command: php-deploykit"
-  INSTALL_DIR=$(dirname "$(readlink -f "$(command -v php-deploykit)")")
+update() {
+  INSTALL_DIR=$(dirname "$(readlink -f "$(command -v "$command_name")")")
+
+  if [ -z "$(command -v "$command_name")" ]; then
+    echo "Error: Command '$command_name' not found in PATH."
+    exit 1
+  fi
+
+
+  if [[ ! -f "$INSTALL_DIR/run.sh" ]]; then
+      echo "Error: $INSTALL_DIR does not appear to contain php-deploykit (run.sh missing)."
+      exit 1
+  fi
+
+  if [[ ! -d "$INSTALL_DIR" ]]; then
+      echo "Error: Installation directory $INSTALL_DIR not found."
+      exit 1
+  fi
+
+  if [[ "$INSTALL_DIR" =~ ^/($|etc|bin|lib|usr|boot|dev|root|var)$ ]]; then
+      echo "Fatal Error: INSTALL_DIR points to a protected system path ($INSTALL_DIR)."
+      exit 1
+  fi
+
   if [[ -d "$INSTALL_DIR" && "$INSTALL_DIR" != "." ]]; then
     echo "Updating installation in directory: $INSTALL_DIR"
     UPDATE_DIR="${INSTALL_DIR}-update"
     BACKUP_DIR="${INSTALL_DIR}-backup"
     sudo rm -rf "$UPDATE_DIR"
     sudo mkdir -p "$UPDATE_DIR"
-    cd "$UPDATE_DIR"
-    if [ "$PRE" = true ]; then
-        URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases"
-    else
-        URL="https://api.github.com/repos/nathanael-thms/php-deploykit/releases/latest"
-    fi
-
-    RELEASE_TAG=$(curl -sL -H "User-Agent: php-deploykit-installer" "$URL" | python3 -c "import sys, json; data = json.load(sys.stdin); print(data[0]['tag_name'] if isinstance(data, list) else data['tag_name'])")
-    if [ -z "$RELEASE_TAG" ]; then
-      echo "Error: Could not determine the release tag."
-      exit 1
-    fi
-
+    
     echo "Updating to $RELEASE_TAG"
     TMP_CLONE=$(mktemp -d)
     git clone --branch "$RELEASE_TAG" --depth 1 https://github.com/nathanael-thms/php-deploykit.git "$TMP_CLONE"
 
-    # Use sudo only to move the files into /opt
     sudo rsync -av "$TMP_CLONE/" "$UPDATE_DIR/"
 
     # Cleanup the temp clone
@@ -124,8 +160,19 @@ else
     sudo rm -rf "$BACKUP_DIR"
 
     echo "Update complete!"
-  else
-    echo "No install found"
-    exit 1
+    exit 0
   fi
+}
+
+if [ "$INSTALL" = true ]; then
+  install
+else
+  echo "Starting Updater, defaulting command name to 'php-deploykit' in 5 seconds, press any key to interrupt"
+  if read -rt 5 -n 1 -s < /dev/tty; then
+    echo "Please enter the command name:"
+    read -r command_name < /dev/tty
+  else
+    command_name="php-deploykit"
+  fi
+  update
 fi
