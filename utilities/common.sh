@@ -32,7 +32,7 @@ get_env_var() {
 
 # Pre flight checks
 pre_flight_checks() {
-    # These checks are untested
+    echo "Starting pre flight checks"
     # Permission checks
     APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
 
@@ -60,7 +60,7 @@ pre_flight_checks() {
     # Sometimes dependency checks
     SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
     GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
-    if [ "$SYMLINK_DEPLOYMENT" = "true" | "$GIT_PULL" = "true" ]; then
+    if [[ "$SYMLINK_DEPLOYMENT" = "true" || "$GIT_PULL" = "true" ]]; then
         if ! command -v git >/dev/null 2>&1; then
             echo "Git is not present on the system"
             exit 1
@@ -75,6 +75,8 @@ pre_flight_checks() {
             exit 1
         fi
     fi
+
+    echo "Free flight checks passed, proceeding"
 }
 
 # Logging logic

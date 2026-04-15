@@ -19,6 +19,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 activate_logging "first"
+pre_flight_checks
 
 FRAMEWORK="${FRAMEWORK:-$(get_env_var "FRAMEWORK" "$ENV_FILE")}"
 SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
