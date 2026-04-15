@@ -35,31 +35,31 @@ pre_flight_checks() {
     PRE_FLIGHT_CHECKS="${PRE_FLIGHT_CHECKS:-$(get_env_var "PRE_FLIGHT_CHECKS" "$ENV_FILE")}"
     if [ "$PRE_FLIGHT_CHECKS" = "true" ]; then
         echo "Starting pre flight checks"
-        
+
         # Permission checks
         APP_DIR="${APP_DIR:-$(get_env_var "APP_DIR" "$ENV_FILE")}"
-    
+
         if [ -z "$APP_DIR" ]; then
             echo "APP_DIR not set in environment or .env; aborting"
             exit 1
         fi
-    
+
         if [ ! -w "$APP_DIR" ]; then
             echo "No write permission to APP_DIR: $APP_DIR; aborting"
             exit 1
         fi
-    
+
         # Always dependency checks
         if ! command -v php >/dev/null 2>&1; then
             echo "PHP is not present on the system"
             exit 1
         fi
-    
+
         if ! command -v composer >/dev/null 2>&1; then
             echo "Composer is not present on the system"
             exit 1
         fi
-    
+
         # Sometimes dependency checks
         SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$ENV_FILE")}"
         GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
@@ -69,16 +69,26 @@ pre_flight_checks() {
                 exit 1
             fi
         fi
-    
+
         RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
-    
+
         if [ "$RUN_NPM" = "true" ]; then
             if ! command -v npm >/dev/null 2>&1; then
                 echo "NPM is not present on the system"
                 exit 1
             fi
         fi
-    
+
+        # Storage check
+        MIN_STORAGE_GB="${MIN_STORAGE_GB:-$(get_env_var "MIN_STORAGE_GB" "$ENV_FILE")}"
+        if [ -n "$MIN_STORAGE_GB" ]; then
+            available_gb=$(df "$APP_DIR" | awk 'NR==2 {printf "%.0f", $4/1024/1024}')
+            if [ "$available_gb" -lt "$MIN_STORAGE_GB" ]; then
+                echo "Insufficient storage: ${available_gb}GB available, ${MIN_STORAGE_GB}GB required"
+                exit 1
+            fi
+        fi
+
         echo "Free flight checks passed, proceeding"
     fi
 }
