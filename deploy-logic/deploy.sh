@@ -2,6 +2,7 @@
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_DIR="$SCRIPT_DIR/.."
 source "$SCRIPT_DIR/../utilities/common.sh"
 
 first=false
@@ -27,14 +28,14 @@ SYMLINK_DEPLOYMENT="${SYMLINK_DEPLOYMENT:-$(get_env_var "SYMLINK_DEPLOYMENT" "$E
 if [ "$FRAMEWORK" = "laravel" ]; then
     if [ "$SYMLINK_DEPLOYMENT" = "true" ]; then
         echo -e "${GREEN}Starting symlink deployment${NC}"
-        bash deploy-logic/laravel/deploy_symlink.sh --called
+        bash "$BASE_DIR"/deploy-logic/laravel/deploy_symlink.sh --called
     else
         if [ "$first" = true ]; then
             echo -e "${GREEN}Starting first classical deployment${NC}"
-            bash deploy-logic/laravel/deploy_classical.sh --first --called
+            bash "$BASE_DIR"/deploy-logic/laravel/deploy_classical.sh --first --called
         else
             echo -e "${GREEN}Starting classical deployment${NC}"
-            bash deploy-logic/laravel/deploy_classical.sh --called
+            bash "$BASE_DIR"/deploy-logic/laravel/deploy_classical.sh --called
         fi
     fi
 

@@ -4,7 +4,7 @@ These notes are for anybody who is interested in adding to the project.
 
 ## Practices for each script
 
-- Each script should start with the following, run.sh being the only exception:
+- Each script should start with the following, the last line must be changed accordingly to point to common.sh, run.sh being the only exception:
 ```bash
 #!/bin/bash
 set -euo pipefail

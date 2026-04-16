@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 deploy=false
 migrate=false
@@ -54,21 +55,18 @@ while [[ $# -gt 0 ]]; do
       ;;
 
     --webhook-listener)
-      echo "Starting webhook listener..."
-      python3 utilities/webhook_listener_py.py
-      exit 0
+      webhook_listener=true
+      shift
       ;;
 
     --webhook-service-install)
-      echo "Installing webhook listener as a systemd service..."
-      bash utilities/webhook_listener_service_install.sh
-      exit 0
+      webhook_service_install=true
+      shift
       ;;
 
     --webhook-service-uninstall)
-      echo "Uninstalling webhook listener systemd service..."
-      bash utilities/webhook_listener_service_uninstall.sh
-      exit 0
+      webhook_service_uninstall=true
+      shift
       ;;
 
     --help)
@@ -118,60 +116,60 @@ fi
 
 if [ "$deploy" = true ]; then
     echo "Starting deployment..."
-    bash deploy-logic/deploy.sh
+    bash "$SCRIPT_DIR"/deploy-logic/deploy.sh
     exit 0
 fi
 
 if [ "$migrate" = true ]; then
     echo "Starting migration to symlink deployment..."
-    bash utilities/migrate_to_symlink.sh
+    bash "$SCRIPT_DIR"/utilities/migrate_to_symlink.sh
     exit 0
 fi
 
 if [ "$revert" = true ]; then
     echo "Starting revert to previous deployment..."
-    bash utilities/revert_to_previous_deployment.sh
+    bash "$SCRIPT_DIR"/utilities/revert_to_previous_deployment.sh
     exit 0
 fi
 
 if [ "$first" = true ]; then
     echo "Starting first deployment..."
-    bash deploy-logic/deploy.sh --first
+    bash "$SCRIPT_DIR"/deploy-logic/deploy.sh --first
     exit 0
 fi
 
 if [ "$cleanup" = true ]; then
     if [ -n "$cleanup_num" ]; then
         echo "Starting cleanup of old releases, keeping the latest $cleanup_num releases..."
-        bash utilities/clean_up_releases.sh $cleanup_num
+        bash "$SCRIPT_DIR"/utilities/clean_up_releases.sh $cleanup_num
     else
         echo "Starting cleanup of old releases..."
-        bash utilities/clean_up_releases.sh
+        bash "$SCRIPT_DIR"/utilities/clean_up_releases.sh
     fi
     exit 0
 fi
 
 if [ "$logs" = true ]; then
     echo "Starting log viewer..."
-    bash utilities/view_logs.sh
+    bash "$SCRIPT_DIR"/utilities/view_logs.sh
     exit 0
 fi
 
 if [ "$webhook_listener" = true ]; then
     echo "Starting webhook listener..."
-    python3 utilities/webhook_listener_py.py
+    python3 "$SCRIPT_DIR"/utilities/webhook_listener_py.py
     exit 0
 fi
 
 if [ "$webhook_service_install" = true ]; then
     echo "Installing webhook listener as a systemd service..."
-    bash utilities/webhook_listener_service_install.sh
+    bash "$SCRIPT_DIR"/utilities/webhook_listener_service_install.sh
     exit 0
 fi
 
 if [ "$webhook_service_uninstall" = true ]; then
     echo "Uninstalling webhook listener systemd service..."
-    bash utilities/webhook_listener_service_uninstall.sh
+    bash "$SCRIPT_DIR"/utilities/webhook_listener_service_uninstall.sh
     exit 0
 fi
 
@@ -190,31 +188,31 @@ read -r choice
 case $choice in
     1)
         echo "Starting deployment..."
-        bash deploy-logic/deploy.sh
+        bash "$SCRIPT_DIR"/deploy-logic/deploy.sh
         ;;
     2)
         echo "Starting migration to symlink deployment..."
-        bash utilities/migrate_to_symlink.sh
+        bash "$SCRIPT_DIR"/utilities/migrate_to_symlink.sh
         ;;
     3)
         echo "Starting revert to previous deployment..."
-        bash utilities/revert_to_previous_deployment.sh
+        bash "$SCRIPT_DIR"/utilities/revert_to_previous_deployment.sh
         ;;
 
     4)
         echo "Starting first deployment..."
-        bash deploy-logic/deploy.sh --first
+        bash "$SCRIPT_DIR"/deploy-logic/deploy.sh --first
         ;;
     5)
         echo "Starting cleanup of old releases..."
-        bash utilities/clean_up_releases.sh
+        bash "$SCRIPT_DIR"/utilities/clean_up_releases.sh
         ;;
     6)
         echo "Starting log viewer..."
-        bash utilities/view_logs.sh
+        bash "$SCRIPT_DIR"/utilities/view_logs.sh
         ;;
     7)  echo "Installing webhook listener as a systemd service..."
-        bash utilities/webhook_listener_service_install.sh
+        bash "$SCRIPT_DIR"/utilities/webhook_listener_service_install.sh
         ;;
     *)
         echo "Invalid option selected. Exiting."
