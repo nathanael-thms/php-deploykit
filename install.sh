@@ -150,8 +150,8 @@ update() {
 
     # Cleanup the temp clone
     rm -rf "$TMP_CLONE"
-    if [ -f "$INSTALL_DIR/config.php" ]; then
-        sudo cp -a "$INSTALL_DIR/config.php" "$UPDATE_DIR/config.php"
+    if [ -f "$INSTALL_DIR/.env" ]; then
+        sudo cp -a "$INSTALL_DIR/.env" "$UPDATE_DIR/.env"
     fi
 
     sudo mv "$INSTALL_DIR" "$BACKUP_DIR"
