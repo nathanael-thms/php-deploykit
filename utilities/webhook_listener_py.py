@@ -174,7 +174,24 @@ class WebhookHandler(BaseHTTPRequestHandler):
             logger.info(f"Running deployment script...")
             script_path = Path(__file__).parent / '../run.sh'
             try:
-                subprocess.run(['bash', str(script_path), '--deploy'], check=True)
+                full_env = os.environ.copy()
+                # Ensure standard system paths are present
+                standard_paths = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+                full_env["PATH"] = f"{standard_paths}:{full_env.get('PATH', '')}"
+
+                # Use bash -i (interactive) and -l (login) to force NVM loading
+                # Wrap the command to source common NVM locations if they exist
+                cmd = (
+                    "for f in /etc/profile ~/.bashrc ~/.nvm/nvm.sh; do [ -f \"$f\" ] && . \"$f\"; done; "
+                    f"bash {script_path} --deploy"
+                )
+                
+                subprocess.run(
+                    ['bash', '-c', cmd],
+                    check=True,
+                    env=full_env,
+                    executable='/bin/bash'
+                )
                 logger.info("Deployment script executed successfully")
                 if commit_sha:
                     send_github_status(commit_sha, "success", "Deployment succeeded")
