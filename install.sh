@@ -29,7 +29,7 @@ else
 fi
 
 echo "Please select an option"
-echo "1) Install(latest stable, currently no stable release has been published, so this will fail)"
+echo "1) Install(latest stable)"
 echo "2) Install(very latest)"
 echo "3) Update existing installation(latest stable)"
 echo "4) Update existing installation(very latest)"
