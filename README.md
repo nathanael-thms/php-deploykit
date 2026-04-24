@@ -1,6 +1,6 @@
 # php-deploykit
 
-php-deploykit is a project currently in development that allows deployment of PHP apps in two ways: classical and symlink (recommended) on Linux servers.
+php-deploykit is a project that allows deployment of PHP apps in two ways: classical and symlink (recommended) on Linux servers.
 
 ## Documentation
 
