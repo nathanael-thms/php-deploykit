@@ -38,6 +38,9 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 NEW_RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
 mkdir "$NEW_RELEASE_DIR"
 
+# Run before changes custom script
+bash "$SCRIPT_DIR/../../custom-before-changes.sh"
+
 # Get code from git
 
 # Get the git repository path from .env
@@ -119,10 +122,17 @@ else
     echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
 fi
 
+# Run before linking custom script
+bash "$SCRIPT_DIR/../../custom-before-linking.sh"
+
 echo -e "${GREEN}Code prepared in new release directory: $NEW_RELEASE_DIR${NC}"
 echo -e "${GREEN}Now updating 'current' symlink to point to the new release...${NC}"
 
 ln -sfn "$NEW_RELEASE_DIR" "$APP_DIR/current"
+
+# Run after changes custom script
+cd "$APP_DIR/current"
+bash "$SCRIPT_DIR/../../custom-after-changes.sh"
 
 # Run cleanup if AUTO_CLEANUP is set to true
 AUTO_CLEANUP="${AUTO_CLEANUP:-$(get_env_var "AUTO_CLEANUP" "$ENV_FILE")}"
