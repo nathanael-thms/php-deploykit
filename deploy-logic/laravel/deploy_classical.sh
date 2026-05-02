@@ -43,6 +43,10 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo -e "${GREEN}Changed directory to: $(pwd)${NC}"
 
+# Run before changes custom script
+bash "$SCRIPT_DIR/../../custom-before-changes.sh"
+
+
 # Down app if enabled and first is not true
 DOWN_APP="${DOWN_APP:-$(get_env_var "DOWN_APP" "$ENV_FILE")}"
 if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
@@ -108,6 +112,9 @@ if [ "$OPTIMIZE" = "true" ]; then
 else
     echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
 fi
+
+# Run after changes custom script
+bash "$SCRIPT_DIR/../../custom-after-changes.sh"
 
 # Bring app back up if it was down
 if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
