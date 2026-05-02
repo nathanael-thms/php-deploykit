@@ -84,7 +84,37 @@ echo -e "${GREEN}Changed directory to new release: $(pwd)${NC}"
 
 # Run Symfony deployment commands
 
-# Commands will go here
+# NPM(if enabled)
+RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
+
+if [ "$RUN_NPM" = "true" ]; then
+    NPM_COMMAND="${NPM_COMMAND:-$(get_env_var "NPM_COMMAND" "$ENV_FILE")}"
+    NPM_COMMAND="${NPM_COMMAND:-build}"
+    echo -e "${GREEN}Running npm install...${NC}"
+    npm install
+    echo -e "${GREEN}Running npm $NPM_COMMAND...${NC}"
+    npm run "$NPM_COMMAND"
+else
+    echo -e "${YELLOW}Skipping npm commands as RUN_NPM is not set to true.${NC}"
+fi
+
+# Composer install and update
+composer install --no-dev --optimize-autoloader --no-interaction 
+
+# Migrations
+MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
+if [ "$MIGRATE" = "true" ]; then
+    echo -e "${GREEN}Running migrations...${NC}"
+    php bin/console doctrine:database:create --if-not-exists --no-interaction
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migrations
+else
+    echo -e "${YELLOW}Skipping migrations as MIGRATE is not set to true.${NC}"
+fi
+
+# Optimization
+php bin/console cache:clear --no-warm --quiet
+php bin/console cache:warm --quiet
+php bin/console cache:warmup --env=prod
 
 echo -e "${GREEN}Code prepared in new release directory: $NEW_RELEASE_DIR${NC}"
 echo -e "${GREEN}Now updating 'current' symlink to point to the new release...${NC}"
