@@ -38,6 +38,21 @@ if [ "$FRAMEWORK" = "laravel" ]; then
             bash "$BASE_DIR"/deploy-logic/laravel/deploy_classical.sh --called
         fi
     fi
+
+elif [ "$FRAMEWORK" = "symfony" ]; then
+    if [ "$SYMLINK_DEPLOYMENT" = "true" ]; then
+        echo -e "${GREEN}Starting symlink deployment${NC}"
+        bash "$BASE_DIR"/deploy-logic/symfony/deploy_symlink.sh --called
+    else
+        if [ "$first" = true ]; then
+            echo -e "${GREEN}Starting first classical deployment${NC}"
+            bash "$BASE_DIR"/deploy-logic/symfony/deploy_classical.sh --first --called
+        else
+            echo -e "${GREEN}Starting classical deployment${NC}"
+            bash "$BASE_DIR"/deploy-logic/symfony/deploy_classical.sh --called
+        fi
+    fi
+    
 else
     echo -e "${RED}Unsupported framework: $FRAMEWORK${NC}"
     exit 1
