@@ -86,7 +86,7 @@ fi
 
 OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
 if [ "$OPTIMIZE" = "true" ]; then
-    php bin/console cache:clear --no-warm --quiet
+    php bin/console cache:clear --no-warmup --quiet
     php bin/console cache:warm --quiet
     php bin/console cache:warmup --env=prod
 else
