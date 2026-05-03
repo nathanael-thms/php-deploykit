@@ -43,6 +43,10 @@ echo "Using APP_DIR: $APP_DIR"
 cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 echo -e "${GREEN}Changed directory to: $(pwd)${NC}"
 
+# Run before changes custom script
+bash "$SCRIPT_DIR/../../custom-before-changes.sh"
+cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
+
 GIT_PULL="${GIT_PULL:-$(get_env_var "GIT_PULL" "$ENV_FILE")}"
 GIT_BRANCH="${GIT_BRANCH:-$(get_env_var "GIT_BRANCH" "$ENV_FILE")}"
 
@@ -92,6 +96,10 @@ if [ "$OPTIMIZE" = "true" ]; then
 else
     echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
 fi
+
+# Run after changes custom script
+bash "$SCRIPT_DIR/../../custom-after-changes.sh"
+cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 
 echo -e "${GREEN}Deployment completed successfully.${NC}"
 exit 0
