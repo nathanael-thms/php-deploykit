@@ -77,8 +77,7 @@ composer install --no-dev --optimize-autoloader --no-interaction
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
 if [ "$MIGRATE" = "true" ]; then
     echo -e "${GREEN}Running migrations...${NC}"
-    php bin/console doctrine:database:create --if-not-exists --no-interaction
-    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migrations
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 else
     echo -e "${YELLOW}Skipping migrations as MIGRATE is not set to true.${NC}"
 fi
