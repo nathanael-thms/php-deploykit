@@ -43,10 +43,25 @@ echo -e "${GREEN}Using releases dir: $APP_DIR/releases${NC}"
 
 cd "$APP_DIR/releases" || { echo -e "${RED}Failed to cd to APP_DIR: $APP_DIR/releases${NC}"; exit 1; }
 
+# Get the current release to safeguard it
+CURRENT_RELEASE=$(readlink -f "$APP_DIR/current" 2>/dev/null || echo "")
+if [ -n "$CURRENT_RELEASE" ]; then
+    CURRENT_RELEASE_NAME=$(basename "$CURRENT_RELEASE")
+    echo -e "${GREEN}Current release: $CURRENT_RELEASE_NAME (will not be deleted)${NC}"
+else
+    echo -e "${YELLOW}No current symlink found, proceeding without safeguard${NC}"
+    CURRENT_RELEASE_NAME=""
+fi
+
 if [ -n "$cleanup_num" ]; then
     echo "Cleaning up old releases, keeping the latest $cleanup_num releases..."
-    ls -1dt */ 2>/dev/null | tail -n +$((cleanup_num + 1)) | xargs -r rm -rf || { echo -e "${RED}Failed to clean up old releases${NC}"; exit 1; }
-    echo -e "${GREEN}Successfully cleaned up old releases, kept the latest $cleanup_num releases${NC}"
+    releases_to_delete=$(ls -1dt */ 2>/dev/null | { if [ -n "$CURRENT_RELEASE_NAME" ]; then grep -v "^$CURRENT_RELEASE_NAME/$"; else cat; fi; } | tail -n +$((cleanup_num + 1)))
+    if [ -n "$releases_to_delete" ]; then
+        echo "$releases_to_delete" | xargs -r rm -rf || { echo -e "${RED}Failed to clean up old releases${NC}"; exit 1; }
+        echo -e "${GREEN}Successfully cleaned up old releases, kept the latest $cleanup_num releases${NC}"
+    else
+        echo -e "${YELLOW}No releases to delete after excluding current release${NC}"
+    fi
     exit 0
 fi
 
@@ -66,7 +81,12 @@ if ! [[ "$keep" =~ ^[0-9]+$ ]] || [ "$keep" -le 0 ]; then
 fi
 
 # Keep the latest $keep releases, delete the rest
-ls -1dt */ 2>/dev/null | tail -n +$((keep + 1)) | xargs -r rm -rf || { echo -e "${RED}Failed to clean up old releases${NC}"; exit 1; }
-echo -e "${GREEN}Successfully cleaned up old releases, kept the latest $keep releases${NC}"
+releases_to_delete=$(ls -1dt */ 2>/dev/null | { if [ -n "$CURRENT_RELEASE_NAME" ]; then grep -v "^$CURRENT_RELEASE_NAME/$"; else cat; fi; } | tail -n +$((keep + 1)))
+if [ -n "$releases_to_delete" ]; then
+    echo "$releases_to_delete" | xargs -r rm -rf || { echo -e "${RED}Failed to clean up old releases${NC}"; exit 1; }
+    echo -e "${GREEN}Successfully cleaned up old releases, kept the latest $keep releases${NC}"
+else
+    echo -e "${YELLOW}No releases to delete after excluding current release${NC}"
+fi
 
 exit 0
