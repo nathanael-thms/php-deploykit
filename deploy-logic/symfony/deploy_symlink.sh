@@ -85,9 +85,9 @@ fi
 cd "$NEW_RELEASE_DIR" || { echo -e "${RED}Failed to cd to NEW_RELEASE_DIR: $NEW_RELEASE_DIR${NC}"; exit 1; }
 echo -e "${GREEN}Changed directory to new release: $(pwd)${NC}"
 
-# Run Laravel deployment commands
+# Run Symfony deployment commands
 
-# NPM install and build
+# NPM(if enabled)
 RUN_NPM="${RUN_NPM:-$(get_env_var "RUN_NPM" "$ENV_FILE")}"
 
 if [ "$RUN_NPM" = "true" ]; then
@@ -101,23 +101,25 @@ else
     echo -e "${YELLOW}Skipping npm commands as RUN_NPM is not set to true.${NC}"
 fi
 
-# Composer install & update
+# Composer install and update
 composer install --no-dev --optimize-autoloader --no-interaction 
 
 # Migrations
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
 if [ "$MIGRATE" = "true" ]; then
     echo -e "${GREEN}Running migrations...${NC}"
-    php artisan migrate --force
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 else
     echo -e "${YELLOW}Skipping migrations as MIGRATE is not set to true.${NC}"
 fi
 
 # Optimization
+
 OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
 if [ "$OPTIMIZE" = "true" ]; then
-    echo -e "${GREEN}Optimizing application...${NC}"
-    php artisan optimize
+    php bin/console cache:clear --no-warmup --quiet
+    php bin/console cache:warm --quiet
+    php bin/console cache:warmup --env=prod
 else
     echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
 fi
