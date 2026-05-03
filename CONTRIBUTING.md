@@ -5,7 +5,7 @@ Thank you for your interest in contributing to php-deploykit!
 ## Reporting bugs and security issues
 
 - Open a GitHub issue for any bugs, feature requests, or general problems.
-- For security vulnerabilities, please use GitHub’s private vulnerability reporting feature (found under the “Security” tab of the repository). **Never report security vulnerabilities publicly**
+- For security vulnerabilities, please see the [Security Policy](SECURITY.md)
 
 ## Pull request guidelines
 
