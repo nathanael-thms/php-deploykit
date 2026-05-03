@@ -45,7 +45,7 @@ echo -e "${GREEN}Changed directory to: $(pwd)${NC}"
 
 # Run before changes custom script
 bash "$SCRIPT_DIR/../../custom-before-changes.sh"
-
+cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 
 # Down app if enabled and first is not true
 DOWN_APP="${DOWN_APP:-$(get_env_var "DOWN_APP" "$ENV_FILE")}"
@@ -115,6 +115,7 @@ fi
 
 # Run after changes custom script
 bash "$SCRIPT_DIR/../../custom-after-changes.sh"
+cd "$APP_DIR" || { echo "Failed to cd to APP_DIR: $APP_DIR"; exit 1; }
 
 # Bring app back up if it was down
 if [ "$DOWN_APP" = "true" ] && [ "$first" = false ]; then
