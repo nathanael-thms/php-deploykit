@@ -84,9 +84,15 @@ else
 fi
 
 # Optimization
-php bin/console cache:clear --no-warm --quiet
-php bin/console cache:warm --quiet
-php bin/console cache:warmup --env=prod
+
+OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
+if [ "$OPTIMIZE" = "true" ]; then
+    php bin/console cache:clear --no-warm --quiet
+    php bin/console cache:warm --quiet
+    php bin/console cache:warmup --env=prod
+else
+    echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
+fi
 
 echo -e "${GREEN}Deployment completed successfully.${NC}"
 exit 0
