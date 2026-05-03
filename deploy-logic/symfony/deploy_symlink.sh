@@ -105,16 +105,21 @@ composer install --no-dev --optimize-autoloader --no-interaction
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
 if [ "$MIGRATE" = "true" ]; then
     echo -e "${GREEN}Running migrations...${NC}"
-    php bin/console doctrine:database:create --if-not-exists --no-interaction
-    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migrations
+    php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 else
     echo -e "${YELLOW}Skipping migrations as MIGRATE is not set to true.${NC}"
 fi
 
 # Optimization
-php bin/console cache:clear --no-warm --quiet
-php bin/console cache:warm --quiet
-php bin/console cache:warmup --env=prod
+
+OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
+if [ "$OPTIMIZE" = "true" ]; then
+    php bin/console cache:clear --no-warmup --quiet
+    php bin/console cache:warm --quiet
+    php bin/console cache:warmup --env=prod
+else
+    echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
+fi
 
 echo -e "${GREEN}Code prepared in new release directory: $NEW_RELEASE_DIR${NC}"
 echo -e "${GREEN}Now updating 'current' symlink to point to the new release...${NC}"
