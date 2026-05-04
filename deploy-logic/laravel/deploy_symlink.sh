@@ -39,6 +39,7 @@ NEW_RELEASE_DIR="$APP_DIR/releases/$TIMESTAMP"
 mkdir "$NEW_RELEASE_DIR"
 
 # Run before changes custom script
+cd "$NEW_RELEASE_DIR" || { echo "Failed to cd to NEW_RELEASE_DIR: $NEW_RELEASE_DIR"; exit 1; }
 bash "$SCRIPT_DIR/../../custom-before-changes.sh"
 
 # Get code from git
