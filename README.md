@@ -15,11 +15,12 @@ Documentation is available at [https://deploykit.nattho.com](https://deploykit.n
 - View if the deployment passed, failed or is in progress just by checking on the GitHub commit page(if using GitHub and enabled)
 - Logging system
 - Easy log viewing, see at a glance which deployments failed and which succeeded(color coded), and view the logs for each deployment without manually opening the log files
-- Automatic cleanup of old releases, keeping the latest releases specified with KEEP_RELEASES in .env(if enabled)
+- Automatic cleanup of old releases, keeping the latest releases specified with `KEEP_RELEASES` in .env(if enabled)
 - Easy configuration with .env file
-- Robust pre-flight-checks
+- Robust pre-flight checks
+- Run your own custom commands at 3 points in deployment
 - Open source and free to use
 
 ## Supported frameworks
 
-php-deploykit currently only supports Laravel, but support for other frameworks will be added in the future. If you want to contribute support for your favorite framework, feel free to open a pull request.
+php-deploykit currently supports Laravel and Symfony, but support for other frameworks may be added in the future. If you want to contribute support for your favorite framework, feel free to open a pull request.
