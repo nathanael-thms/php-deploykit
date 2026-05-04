@@ -55,7 +55,11 @@ if [ "$GIT_PULL" = "true" ]; then
     if [ -n "$GIT_BRANCH" ]; then
         git checkout "$GIT_BRANCH"
     fi
-    TARGET_BRANCH="${GIT_BRANCH:-main}"; git fetch --all --prune && git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH" && git clean -fd
+    TARGET_BRANCH="${GIT_BRANCH:-main}"
+
+    git fetch --all --prune
+    git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+    git clean -fd
 else
     echo -e "${YELLOW}Skipping git pull as GIT_PULL is not set to true.${NC}"
 fi
