@@ -81,6 +81,16 @@ fi
 # Composer install and update
 composer install --no-dev --optimize-autoloader --no-interaction 
 
+if [ -f "importmap.php" ]; then
+    echo "AssetMapper detected. Compiling..."
+    # Check if SassBundle is actually installed before building
+    if php bin/console list | grep -q 'sass:build'; then
+        php bin/console sass:build
+    fi
+    php bin/console importmap:install
+    php bin/console asset-map:compile --no-interaction
+fi
+
 # Migrations
 MIGRATE="${MIGRATE:-$(get_env_var "MIGRATE" "$ENV_FILE")}"
 if [ "$MIGRATE" = "true" ]; then
@@ -95,7 +105,6 @@ fi
 OPTIMIZE="${OPTIMIZE:-$(get_env_var "OPTIMIZE" "$ENV_FILE")}"
 if [ "$OPTIMIZE" = "true" ]; then
     php bin/console cache:clear --no-warmup --quiet
-    php bin/console cache:warm --quiet
     php bin/console cache:warmup --env=prod
 else
     echo -e "${YELLOW}Skipping optimization as OPTIMIZE is not set to true.${NC}"
