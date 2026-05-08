@@ -87,7 +87,7 @@ if [ -f "importmap.php" ]; then
     if php bin/console list | grep -q 'sass:build'; then
         php bin/console sass:build
     fi
-    php bin/console importmap:install
+    php bin/console importmap:install --no-interaction
     php bin/console asset-map:compile --no-interaction
 fi
 
