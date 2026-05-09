@@ -23,4 +23,4 @@ Documentation is available at [https://deploykit.nattho.com](https://deploykit.n
 
 ## Supported frameworks
 
-php-deploykit currently supports Laravel and Symfony, but support for other frameworks may be added in the future. If you want to contribute support for your favorite framework, feel free to open a pull request.
+php-deploykit currently supports Laravel and Symfony(in the v1.1.0 release candidates), but support for other frameworks may be added in the future. If you want to contribute support for your favorite framework, feel free to open a pull request.
