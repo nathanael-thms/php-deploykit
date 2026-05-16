@@ -4,7 +4,7 @@ php-deploykit is a project that allows deployment of PHP apps in two ways: class
 
 ## Demonstration
 
-Below php-deploykit is demonstarted using [chirper](https://github.com/nathanael-thms/chirper): an app that was archived in July 2025, but still uses databases and all the other requierments of a standard laravel app:
+Below php-deploykit is demonstrated using [chirper](https://github.com/nathanael-thms/chirper): an app that was archived in July 2025, but still uses databases and all the other requirements of a standard laravel app:
 
 https://github.com/user-attachments/assets/1d4723f2-5776-46c5-877c-72564e18dd49
 
@@ -14,7 +14,7 @@ Documentation is available at [https://deploykit.nattho.com](https://deploykit.n
 
 ## Features
 
-- As demosnatrated above, installation and deployment in less than a minute(though if you need to configure .env file in your app, more likely 2 minutes)
+- As demonstrated above, installation and deployment in less than a minute(though if you need to configure .env file in your app, more likely 2-5 minutes)
 - Zero downtime deployments (symlink method)
 - Easy rollbacks (symlink method)
 - Auto migration to symlink
