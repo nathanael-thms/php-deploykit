@@ -6,7 +6,7 @@ php-deploykit is a project that allows deployment of PHP apps in two ways: class
 
 Below php-deploykit is demonstarted using [chirper](https://github.com/nathanael-thms/chirper): an app that was archived in July 2025, but still uses databases and all the other requierments of a standard laravel app:
 
-https://github.com/user-attachments/assets/09d2c0a5-306a-4410-93c7-d6a40bf9ace8
+https://github.com/user-attachments/assets/1d4723f2-5776-46c5-877c-72564e18dd49
 
 ## Documentation
 
